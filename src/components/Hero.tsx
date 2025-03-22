@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface HeroProps {
   imageSrc: string;
@@ -75,6 +76,8 @@ const Hero = ({
           </div>
         </div>
       )}
+      
+      {/* Scroll indicator moved to page.tsx */}
       
       {/* Film grain effect */}
       <div 

@@ -29,6 +29,34 @@ npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
+## Deployment Options
+
+### Option 1: GitHub + Vercel (Recommended)
+
+Use the provided script to push to GitHub and then deploy via Vercel:
+
+```bash
+# Make the script executable
+chmod +x reset-and-push.sh
+
+# Run the script to push to GitHub
+./reset-and-push.sh
+```
+
+Then connect your GitHub repository to Vercel.
+
+### Option 2: Direct Vercel CLI Deployment
+
+You can also deploy directly using the Vercel CLI:
+
+```bash
+# Make the script executable
+chmod +x deploy-to-vercel.sh
+
+# Run the script to deploy to Vercel
+./deploy-to-vercel.sh
+```
+
 ## Image Optimization
 
 This project uses Next.js built-in Image component and optimization features to:
@@ -37,7 +65,6 @@ This project uses Next.js built-in Image component and optimization features to:
 - Provide responsive sizing with proper sizes attribute
 - Lazy load images and provide placeholders
 - Serve the appropriate size image based on the device
-- Maintain high quality for photography with a quality setting of 95
 
 ## Project Structure
 
@@ -61,6 +88,6 @@ This project uses Next.js built-in Image component and optimization features to:
 └── package.json         # Project dependencies
 ```
 
-## Deployment
+## Troubleshooting
 
-This project is optimized for deployment on Vercel. Simply connect your GitHub repository to Vercel for automatic deployments.
+If you encounter the error `Unrecognized key(s) in object: 'quality' at "images"`, make sure your `next.config.js` file does not include the `quality` property in the `images` configuration, as this is not a valid configuration option. Instead, set the quality on individual Image components using the `quality` prop.

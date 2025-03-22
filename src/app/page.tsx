@@ -3,59 +3,64 @@ import Gallery from '@/components/Gallery';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Image from 'next/image';
+import ScrollArrow from '@/components/ui/ScrollArrow';
 
 export default function Home() {
-  // Gallery images
+  // Enhanced Gallery images with categories
   const galleryImages = [
     {
       src: '/images/gallery1.jpg',
-      alt: 'City buildings with blue sky'
+      alt: 'City buildings with blue sky',
+      category: 'Urban'
     },
     {
       src: '/images/gallery2.jpg',
-      alt: 'Stone arch pathway'
+      alt: 'Stone arch pathway',
+      category: 'Architecture'
     },
     {
       src: '/images/gallery3.jpg',
-      alt: 'Mountain landscape'
+      alt: 'Mountain landscape',
+      category: 'Landscape'
     },
     {
       src: '/images/gallery4.jpg',
-      alt: 'Urban street scene'
+      alt: 'Urban street scene',
+      category: 'Street'
     }
   ];
 
   return (
     <>
       {/* Hero Section with optimized image */}
-      <Hero
-        imageSrc="/images/hero.jpg"
-        imageAlt="Featured photography"
-        heading="FRAME THE MOMENT"
-        height="large"
-      >
-        <Button href="/portfolio" variant="primary">
-          Explore Gallery
-        </Button>
-      </Hero>
+      <div className="flex flex-col">
+        <Hero
+          imageSrc="/images/hero.jpg"
+          imageAlt="Featured photography"
+          height="large"
+          overlay={false}
+        />
+        <ScrollArrow targetId="gallery-section" />
+      </div>
       
-      {/* Gallery Section - simple grid of optimized images */}
-      <section className="py-16 container mx-auto px-4">
-        <h2 className="text-3xl mb-8 text-center text-primary-charcoal">
+      {/* Gallery Section - ENLARGED featured work */}
+      <section id="gallery-section" className="py-24 container mx-auto px-4 bg-secondary-offWhite">
+        <h2 className="text-5xl mb-12 text-center text-primary-charcoal font-ms-serif font-bold tracking-wider">
           FEATURED WORK
         </h2>
         
         <Gallery 
           images={galleryImages} 
-          columns={4}
+          columns={2}
+          gap="large"
           aspectRatio="square"
           withHoverEffect={true}
-          className="mb-8"
+          className="mb-12"
         />
         
-        <div className="mt-8 text-center">
-          <Button href="/portfolio" variant="secondary">
-            View Full Portfolio
+        <div className="mt-16 text-center">
+          <Button href="/portfolio" variant="primary" className="py-4 px-8 text-lg font-bold tracking-wider">
+            VIEW FULL PORTFOLIO
           </Button>
         </div>
       </section>

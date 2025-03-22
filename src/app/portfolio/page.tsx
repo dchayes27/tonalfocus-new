@@ -4,11 +4,6 @@ import { useState } from 'react';
 import Gallery from '@/components/Gallery';
 import Button from '@/components/ui/Button';
 
-export const metadata = {
-  title: 'Portfolio | TonalFocus Photography',
-  description: 'Browse my photography portfolio showcasing a variety of styles and subjects',
-};
-
 export default function Portfolio() {
   // Portfolio images - in a real application, these would likely come from a CMS or data file
   const allImages = [

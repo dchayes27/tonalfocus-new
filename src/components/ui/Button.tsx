@@ -11,6 +11,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   className?: string;
   onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 const Button = ({
@@ -18,7 +19,8 @@ const Button = ({
   href,
   variant = 'primary',
   className = '',
-  onClick
+  onClick,
+  type = 'button'
 }: ButtonProps) => {
   // Define styles for different variants
   const variantStyles = {
@@ -42,7 +44,7 @@ const Button = ({
   
   // Otherwise, render a button
   return (
-    <button className={styles} onClick={onClick}>
+    <button className={styles} onClick={onClick} type={type}>
       {children}
     </button>
   );

@@ -28,7 +28,7 @@ export default function About() {
     {
       step: 1,
       title: 'Consultation',
-      description: 'We'll start with a detailed discussion about your vision, preferences, and what you want to achieve with the photography. This helps me tailor my approach specifically to your needs.'
+      description: 'We\'ll start with a detailed discussion about your vision, preferences, and what you want to achieve with the photography. This helps me tailor my approach specifically to your needs.'
     },
     {
       step: 2,
@@ -43,7 +43,7 @@ export default function About() {
     {
       step: 4,
       title: 'Delivery',
-      description: 'You'll receive your final images in a private online gallery where you can view, download, and share them. For print orders, I work with professional labs to ensure exceptional quality that does justice to your images.'
+      description: 'You\'ll receive your final images in a private online gallery where you can view, download, and share them. For print orders, I work with professional labs to ensure exceptional quality that does justice to your images.'
     }
   ];
 

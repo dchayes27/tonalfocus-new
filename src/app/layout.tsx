@@ -1,11 +1,26 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Space_Mono, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
+import Image from 'next/image';
+import Logo from '@/components/ui/logo';
 
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const spaceMono = Space_Mono({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-pixel', // Using Space Mono as our pixel/monospace font
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-ms-serif', // Using Playfair Display as our serif font
   display: 'swap',
 });
 
@@ -22,16 +37,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans`}>
+      <body className={`${inter.variable} ${spaceMono.variable} ${playfair.variable} font-sans`}>
         <header className="fixed top-0 w-full bg-secondary-offWhite/90 backdrop-blur-sm z-50 shadow-md">
           <div className="container mx-auto px-4 py-3">
             <div className="flex justify-between items-center">
-              <Link href="/" className="flex items-center">
-                <span className="text-xl font-bold">
-                  <span className="text-primary-teal">tonal</span>
-                  <span className="text-primary-mauve">focus</span>
-                </span>
-              </Link>
+              <Logo />
               
               <nav className="hidden md:flex space-x-6">
                 {['Home', 'Portfolio', 'About', 'Contact'].map(item => (
@@ -60,10 +70,7 @@ export default function RootLayout({
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
-                <span className="text-lg font-bold">
-                  <span className="text-primary-teal">tonal</span>
-                  <span className="text-primary-mauve">focus</span>
-                </span>
+                <Logo />
                 <p className="text-sm text-gray-400 mt-1">© {new Date().getFullYear()} All Rights Reserved</p>
               </div>
               

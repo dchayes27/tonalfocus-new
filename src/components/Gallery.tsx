@@ -61,37 +61,38 @@ const Gallery = ({
   return (
     <div className={`grid ${columnMap[columns]} ${gapMap[gap]} ${className}`}>
       {images.map((image, index) => (
-        <div key={index} className="group">
-          <div className={`relative overflow-hidden ${aspectRatioMap[aspectRatio]}`}>
+        <div key={index} className="group transform transition-transform duration-500 hover:-translate-y-1">
+          <div className={`relative overflow-hidden ${aspectRatioMap[aspectRatio]} shadow-lg rounded-sm border-2 border-gray-100`}>
             {/* Loading placeholder */}
             {!isLoading[index] && (
               <div className="absolute inset-0 bg-gray-200 animate-pulse" />
             )}
             
-            {/* Image with Next.js optimization */}
+            {/* Image with Next.js optimization - ENHANCED */}
             <Image
               src={image.src}
               alt={image.alt}
               fill={true}
               sizes={`(max-width: 768px) 100vw, (max-width: 1200px) 50vw, ${100 / columns}vw`}
-              quality={90}
+              quality={95}
+              priority={index < 2} /* Load first 2 images with priority */
               style={{objectFit: 'cover'}}
               className={`
-                transition-all duration-500
+                transition-all duration-700
                 ${isLoading[index] ? 'opacity-100' : 'opacity-0'}
-                ${withHoverEffect ? 'group-hover:scale-105 transition-transform duration-500' : ''}
+                ${withHoverEffect ? 'group-hover:scale-105 transition-transform duration-700 shadow-xl' : ''}
               `}
               onLoad={() => handleImageLoad(index)}
             />
           </div>
           
-          {/* Optional caption */}
-          {image.category && (
-            <div className="mt-2">
-              <p className="text-sm text-primary-charcoal/70">{image.category}</p>
-              <p className="text-primary-charcoal">{image.alt}</p>
-            </div>
-          )}
+          {/* Enhanced caption display */}
+          <div className="mt-4 mb-8">
+            {image.category && (
+              <p className="text-sm font-medium font-pixel text-primary-teal uppercase tracking-wider">{image.category}</p>
+            )}
+            <p className="text-lg font-medium font-ms-serif text-primary-charcoal">{image.alt}</p>
+          </div>
         </div>
       ))}
     </div>

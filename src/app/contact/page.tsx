@@ -4,11 +4,6 @@ import { useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
-export const metadata = {
-  title: 'Contact | TonalFocus Photography',
-  description: 'Get in touch to discuss your photography needs and book a session',
-};
-
 export default function Contact() {
   // Form state
   const [formData, setFormData] = useState({
@@ -49,11 +44,11 @@ export default function Contact() {
     },
     {
       question: 'What should I wear to a portrait session?',
-      answer: 'I recommend wearing clothes that make you feel comfortable and confident. Solid colors tend to photograph better than busy patterns. We'll discuss specific recommendations during your consultation based on the location and style of your session.'
+      answer: 'I recommend wearing clothes that make you feel comfortable and confident. Solid colors tend to photograph better than busy patterns. We\'ll discuss specific recommendations during your consultation based on the location and style of your session.'
     },
     {
       question: 'How long until I receive my photos?',
-      answer: 'Typically, you'll receive your edited gallery within 2 weeks for portrait sessions and 3-4 weeks for events. Rush delivery is available for an additional fee if you need your images sooner.'
+      answer: 'Typically, you\'ll receive your edited gallery within 2 weeks for portrait sessions and 3-4 weeks for events. Rush delivery is available for an additional fee if you need your images sooner.'
     }
   ];
   
