@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -10,27 +10,53 @@ interface UploadFile extends File {
   uploadProgress?: number;
   uploadStatus?: 'pending' | 'uploading' | 'success' | 'error';
   errorMessage?: string;
+  metadata?: {
+    title: string;
+    description: string;
+    category_id: string;
+    is_featured: boolean;
+  };
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 export default function PhotoUploadPage() {
   const router = useRouter();
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   
   // Load categories on mount
-  useState(() => {
+  useEffect(() => {
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data.categories || []));
-  });
+  }, []);
   
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => Object.assign(file, {
-      preview: URL.createObjectURL(file),
-      uploadProgress: 0,
-      uploadStatus: 'pending' as const
-    }));
+    const newFiles = acceptedFiles.map(file => {
+      // Generate title from filename
+      const titleFromFilename = file.name
+        .split('.')[0]
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+        
+      return Object.assign(file, {
+        preview: URL.createObjectURL(file),
+        uploadProgress: 0,
+        uploadStatus: 'pending' as const,
+        metadata: {
+          title: titleFromFilename,
+          description: '',
+          category_id: '',
+          is_featured: false
+        }
+      });
+    });
     setFiles(prev => [...prev, ...newFiles]);
   }, []);
   
@@ -42,10 +68,19 @@ export default function PhotoUploadPage() {
     maxSize: 10 * 1024 * 1024 // 10MB
   });
   
+  const updateFileMetadata = (index: number, metadata: any) => {
+    setFiles(prev => prev.map((f, i) => 
+      i === index ? { ...f, metadata: { ...f.metadata, ...metadata } } : f
+    ));
+  };
+  
   const uploadFile = async (file: UploadFile, index: number) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('title', file.name.split('.')[0]); // Use filename as title
+    formData.append('title', file.metadata?.title || file.name);
+    formData.append('description', file.metadata?.description || '');
+    formData.append('category_id', file.metadata?.category_id || '');
+    formData.append('is_featured', String(file.metadata?.is_featured || false));
     
     // Update status
     setFiles(prev => prev.map((f, i) => 
@@ -59,7 +94,8 @@ export default function PhotoUploadPage() {
       });
       
       if (!response.ok) {
-        throw new Error(await response.text());
+        const error = await response.json();
+        throw new Error(error.error || 'Upload failed');
       }
       
       // Update status to success
@@ -67,7 +103,7 @@ export default function PhotoUploadPage() {
         i === index ? { ...f, uploadStatus: 'success' as const, uploadProgress: 100 } : f
       ));
       
-      toast.success(`${file.name} uploaded successfully!`);
+      toast.success(`${file.metadata?.title || file.name} uploaded successfully!`);
       
     } catch (error) {
       // Update status to error
@@ -79,7 +115,7 @@ export default function PhotoUploadPage() {
         } : f
       ));
       
-      toast.error(`Failed to upload ${file.name}`);
+      toast.error(`Failed to upload ${file.metadata?.title || file.name}`);
     }
   };
   
@@ -126,7 +162,7 @@ export default function PhotoUploadPage() {
           Back to Photos
         </button>
       </div>
-      
+            
       {/* Dropzone */}
       <div
         {...getRootProps()}
@@ -151,7 +187,7 @@ export default function PhotoUploadPage() {
           </p>
         </div>
       </div>
-            
+      
       {/* File List */}
       {files.length > 0 && (
         <div className="space-y-4">
@@ -168,64 +204,133 @@ export default function PhotoUploadPage() {
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-4">
             {files.map((file, index) => (
               <div 
                 key={index}
-                className="relative bg-gray-900 border border-green-800 rounded-lg overflow-hidden"
+                className="bg-gray-900 border border-green-800 rounded-lg overflow-hidden"
               >
-                {/* Preview */}
-                <div className="aspect-video relative">
-                  <img
-                    src={file.preview}
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Status Overlay */}
-                  {file.uploadStatus === 'uploading' && (
-                    <div className="absolute inset-0 bg-black/75 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400 mx-auto mb-2"></div>
-                        <p className="text-sm">Uploading...</p>
+                <div className="flex">
+                  {/* Preview */}
+                  <div className="w-48 h-32 relative flex-shrink-0">
+                    <img
+                      src={file.preview}
+                      alt={file.name}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Status Overlay */}
+                    {file.uploadStatus === 'uploading' && (
+                      <div className="absolute inset-0 bg-black/75 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-400"></div>
                       </div>
-                    </div>
-                  )}
-                  
-                  {file.uploadStatus === 'success' && (
-                    <div className="absolute inset-0 bg-green-900/50 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">✅</div>
-                        <p className="text-sm">Uploaded!</p>
+                    )}
+                    
+                    {file.uploadStatus === 'success' && (
+                      <div className="absolute inset-0 bg-green-900/50 flex items-center justify-center">
+                        <div className="text-3xl">✅</div>
                       </div>
-                    </div>
-                  )}
-                  
-                  {file.uploadStatus === 'error' && (
-                    <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center">
-                      <div className="text-center px-4">
-                        <div className="text-4xl mb-2">❌</div>
-                        <p className="text-sm">{file.errorMessage || 'Upload failed'}</p>
+                    )}
+                    
+                    {file.uploadStatus === 'error' && (
+                      <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center">
+                        <div className="text-3xl">❌</div>
                       </div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* File Info */}
-                <div className="p-4">
-                  <p className="text-sm font-mono truncate">{file.name}</p>
-                  <p className="text-xs text-gray-400">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
+                    )}
+                  </div>
                   
-                  {file.uploadStatus === 'pending' && (
-                    <button
-                      onClick={() => removeFile(index)}
-                      className="mt-2 text-xs text-red-400 hover:text-red-300"
-                    >
-                      Remove
-                    </button>
-                  )}
+                  {/* Metadata Form */}
+                  <div className="flex-1 p-4">
+                    {editingIndex === index ? (
+                      // Edit Mode
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            value={file.metadata?.title || ''}
+                            onChange={(e) => updateFileMetadata(index, { title: e.target.value })}
+                            placeholder="Title"
+                            className="px-2 py-1 bg-black border border-green-800 rounded text-sm"
+                          />
+                          <select
+                            value={file.metadata?.category_id || ''}
+                            onChange={(e) => updateFileMetadata(index, { category_id: e.target.value })}
+                            className="px-2 py-1 bg-black border border-green-800 rounded text-sm"
+                          >
+                            <option value="">No Category</option>
+                            {categories.map(cat => (
+                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <textarea
+                          value={file.metadata?.description || ''}
+                          onChange={(e) => updateFileMetadata(index, { description: e.target.value })}
+                          placeholder="Description (optional)"
+                          className="w-full px-2 py-1 bg-black border border-green-800 rounded text-sm"
+                          rows={2}
+                        />
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center text-sm">
+                            <input
+                              type="checkbox"
+                              checked={file.metadata?.is_featured || false}
+                              onChange={(e) => updateFileMetadata(index, { is_featured: e.target.checked })}
+                              className="mr-2"
+                            />
+                            Featured
+                          </label>
+                          <button
+                            onClick={() => setEditingIndex(null)}
+                            className="text-sm text-green-400 hover:text-green-300"
+                          >
+                            Done Editing
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // View Mode
+                      <div className="space-y-1">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{file.metadata?.title || file.name}</h3>
+                            <p className="text-xs text-gray-400">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                              {file.metadata?.category_id && categories.find(c => c.id === file.metadata?.category_id) && (
+                                <span className="ml-2">• {categories.find(c => c.id === file.metadata?.category_id)?.name}</span>
+                              )}
+                              {file.metadata?.is_featured && (
+                                <span className="ml-2 text-yellow-400">• Featured</span>
+                              )}
+                            </p>
+                            {file.metadata?.description && (
+                              <p className="text-sm text-gray-300 mt-1">{file.metadata.description}</p>
+                            )}
+                            {file.errorMessage && (
+                              <p className="text-sm text-red-400 mt-1">{file.errorMessage}</p>
+                            )}
+                          </div>
+                          
+                          {file.uploadStatus === 'pending' && (
+                            <div className="flex items-center space-x-2 ml-4">
+                              <button
+                                onClick={() => setEditingIndex(index)}
+                                className="text-sm text-blue-400 hover:text-blue-300"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => removeFile(index)}
+                                className="text-sm text-red-400 hover:text-red-300"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

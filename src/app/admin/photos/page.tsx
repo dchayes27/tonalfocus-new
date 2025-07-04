@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import EditPhotoModal from '@/components/admin/EditPhotoModal';
 
 interface Photo {
   id: string;
@@ -19,16 +20,35 @@ interface Photo {
   };
 }
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 export default function PhotosManagementPage() {
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
+  const [bulkMode, setBulkMode] = useState(false);
   
-  // Load photos
+  // Load photos and categories
   useEffect(() => {
     fetchPhotos();
+    fetchCategories();
   }, []);
+  
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      setCategories(data.categories || []);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
   
   const fetchPhotos = async () => {
     try {
@@ -61,6 +81,41 @@ export default function PhotosManagementPage() {
     } catch (error) {
       toast.error('Failed to delete photo');
     }
+  };
+  
+  const handleBulkDelete = async () => {
+    if (selectedPhotos.size === 0) return;
+    
+    if (!confirm(`Delete ${selectedPhotos.size} selected photos?`)) {
+      return;
+    }
+    
+    let successCount = 0;
+    for (const photoId of selectedPhotos) {
+      try {
+        const response = await fetch(`/api/admin/photos/${photoId}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) successCount++;
+      } catch (error) {
+        console.error(`Failed to delete photo ${photoId}`);
+      }
+    }
+    
+    toast.success(`Deleted ${successCount} photos`);
+    setSelectedPhotos(new Set());
+    setBulkMode(false);
+    fetchPhotos();
+  };
+  
+  const togglePhotoSelection = (photoId: string) => {
+    const newSelection = new Set(selectedPhotos);
+    if (newSelection.has(photoId)) {
+      newSelection.delete(photoId);
+    } else {
+      newSelection.add(photoId);
+    }
+    setSelectedPhotos(newSelection);
   };
   
   const toggleFeatured = async (photo: Photo) => {
@@ -96,21 +151,60 @@ export default function PhotosManagementPage() {
         <h1 className="text-3xl font-bold font-mono">
           Manage Photos ({photos.length})
         </h1>
-        <Link
-          href="/admin/photos/upload"
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-        >
-          Upload Photos
-        </Link>
+        <div className="flex items-center space-x-4">
+          {bulkMode && selectedPhotos.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+            >
+              Delete Selected ({selectedPhotos.size})
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setBulkMode(!bulkMode);
+              setSelectedPhotos(new Set());
+            }}
+            className={`px-4 py-2 border rounded transition-colors ${
+              bulkMode 
+                ? 'border-yellow-600 text-yellow-400' 
+                : 'border-green-800 hover:border-green-600'
+            }`}
+          >
+            {bulkMode ? 'Cancel Bulk' : 'Bulk Select'}
+          </button>
+          <Link
+            href="/admin/photos/upload"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+          >
+            Upload Photos
+          </Link>
+        </div>
       </div>
-      
+            
       {/* Photo Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {photos.map(photo => (
           <div
             key={photo.id}
-            className="bg-gray-900 border border-green-800 rounded-lg overflow-hidden group"
+            className={`bg-gray-900 border rounded-lg overflow-hidden group ${
+              selectedPhotos.has(photo.id) 
+                ? 'border-yellow-600' 
+                : 'border-green-800'
+            }`}
           >
+            {/* Bulk Selection Checkbox */}
+            {bulkMode && (
+              <div className="absolute top-2 right-2 z-10">
+                <input
+                  type="checkbox"
+                  checked={selectedPhotos.has(photo.id)}
+                  onChange={() => togglePhotoSelection(photo.id)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+            )}
+            
             {/* Image */}
             <div className="aspect-video relative">
               <Image
@@ -159,6 +253,9 @@ export default function PhotosManagementPage() {
               {photo.category && (
                 <p className="text-xs text-gray-400">{photo.category.name}</p>
               )}
+              <p className="text-xs text-gray-500 mt-1">
+                Order: {photo.display_order}
+              </p>
             </div>
           </div>
         ))}
@@ -176,6 +273,18 @@ export default function PhotosManagementPage() {
           </Link>
         </div>
       )}
+      
+      {/* Edit Modal */}
+      <EditPhotoModal
+        photo={selectedPhoto}
+        categories={categories}
+        isOpen={editMode}
+        onClose={() => {
+          setEditMode(false);
+          setSelectedPhoto(null);
+        }}
+        onUpdate={fetchPhotos}
+      />
     </div>
   );
 }
