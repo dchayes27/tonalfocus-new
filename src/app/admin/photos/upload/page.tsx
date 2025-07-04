@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import imageCompression from 'browser-image-compression';
 
 interface UploadFile extends File {
   preview?: string;
@@ -16,6 +17,8 @@ interface UploadFile extends File {
     category_id: string;
     is_featured: boolean;
   };
+  originalSize?: number;
+  originalName?: string;
 }
 
 interface Category {
@@ -37,17 +40,42 @@ export default function PhotoUploadPage() {
       .then(data => setCategories(data.categories || []));
   }, []);
   
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    // Show loading toast
+    const loadingToast = toast.loading(`Processing ${acceptedFiles.length} file(s)...`);
+    
+    const newFiles = await Promise.all(acceptedFiles.map(async (file) => {
       // Generate title from filename
       const titleFromFilename = file.name
         .split('.')[0]
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, l => l.toUpperCase());
       
+      // Compress image if it's larger than 1MB
+      let processedFile = file;
+      if (file.size > 1024 * 1024) {
+        try {
+          console.log(`Compressing ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)...`);
+          
+          const options = {
+            maxSizeMB: 0.95, // Target under 1MB
+            maxWidthOrHeight: 2048, // Max dimension
+            useWebWorker: true,
+            fileType: file.type as 'image/jpeg' | 'image/png' | 'image/webp'
+          };
+          
+          processedFile = await imageCompression(file, options);
+          console.log(`Compressed to ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
+          
+        } catch (error) {
+          console.error('Compression failed:', error);
+          toast.error(`Failed to compress ${file.name}`);
+        }
+      }
+      
       // Create proper File object with all properties
-      const uploadFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
+      const uploadFile = Object.assign(processedFile, {
+        preview: URL.createObjectURL(processedFile),
         uploadProgress: 0,
         uploadStatus: 'pending' as const,
         metadata: {
@@ -55,19 +83,25 @@ export default function PhotoUploadPage() {
           description: '',
           category_id: '',
           is_featured: false
-        }
+        },
+        originalSize: file.size,
+        originalName: file.name
       }) as UploadFile;
       
       // Log file info for debugging
       console.log('File info:', {
         name: file.name,
-        size: file.size,
-        type: file.type,
-        sizeMB: (file.size / 1024 / 1024).toFixed(2)
+        originalSize: file.size,
+        compressedSize: processedFile.size,
+        type: processedFile.type,
+        originalMB: (file.size / 1024 / 1024).toFixed(2),
+        compressedMB: (processedFile.size / 1024 / 1024).toFixed(2)
       });
         
       return uploadFile;
-    });
+    }));
+    
+    toast.dismiss(loadingToast);
     setFiles(prev => [...prev, ...newFiles]);
   }, []);
   
