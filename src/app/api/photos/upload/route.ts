@@ -4,6 +4,7 @@ import {
   uploadImage, 
   createThumbnail, 
   getImageDimensions,
+  extractExifData,
   ALLOWED_IMAGE_TYPES,
   MAX_FILE_SIZE,
   PHOTOS_BUCKET 
@@ -48,6 +49,9 @@ export async function POST(request: NextRequest) {
     // Get image dimensions
     const dimensions = await getImageDimensions(file);
     
+    // Extract EXIF data
+    const exifData = await extractExifData(file);
+    
     // Upload main image
     const { path: storagePath, publicUrl } = await uploadImage(file, PHOTOS_BUCKET, true);
     
@@ -72,7 +76,8 @@ export async function POST(request: NextRequest) {
         metadata: {
           originalName: file.name,
           mimeType: file.type,
-          uploadedAt: new Date().toISOString()
+          uploadedAt: new Date().toISOString(),
+          exif: exifData || {}
         }
       })
       .select()

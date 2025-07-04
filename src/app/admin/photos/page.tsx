@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import EditPhotoModal from '@/components/admin/EditPhotoModal';
+import SortablePhotoGrid from '@/components/admin/SortablePhotoGrid';
 
 interface Photo {
   id: string;
@@ -15,6 +16,7 @@ interface Photo {
   thumbnail_url: string;
   is_featured: boolean;
   display_order: number;
+  metadata?: Record<string, any>;
   category?: {
     name: string;
   };
@@ -33,6 +35,8 @@ export default function PhotosManagementPage() {
   const [editMode, setEditMode] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
   const [bulkMode, setBulkMode] = useState(false);
+  const [reorderMode, setReorderMode] = useState(false);
+  const [hasReordered, setHasReordered] = useState(false);
   
   // Load photos and categories
   useEffect(() => {
@@ -118,6 +122,36 @@ export default function PhotosManagementPage() {
     setSelectedPhotos(newSelection);
   };
   
+  const handlePhotosReorder = (reorderedPhotos: Photo[]) => {
+    // Update display_order for each photo
+    const updatedPhotos = reorderedPhotos.map((photo, index) => ({
+      ...photo,
+      display_order: index
+    }));
+    setPhotos(updatedPhotos);
+    setHasReordered(true);
+  };
+  
+  const saveReorder = async () => {
+    try {
+      const photoIds = photos.map(p => p.id);
+      const response = await fetch('/api/admin/photos/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoIds })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save order');
+      }
+      
+      toast.success('Photo order saved successfully');
+      setHasReordered(false);
+    } catch (error) {
+      toast.error('Failed to save photo order');
+    }
+  };
+  
   const toggleFeatured = async (photo: Photo) => {
     try {
       const response = await fetch(`/api/admin/photos/${photo.id}`, {
@@ -152,6 +186,14 @@ export default function PhotosManagementPage() {
           Manage Photos ({photos.length})
         </h1>
         <div className="flex items-center space-x-4">
+          {hasReordered && (
+            <button
+              onClick={saveReorder}
+              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded transition-colors"
+            >
+              Save Order
+            </button>
+          )}
           {bulkMode && selectedPhotos.size > 0 && (
             <button
               onClick={handleBulkDelete}
@@ -162,7 +204,22 @@ export default function PhotosManagementPage() {
           )}
           <button
             onClick={() => {
+              setReorderMode(!reorderMode);
+              setBulkMode(false);
+              setSelectedPhotos(new Set());
+            }}
+            className={`px-4 py-2 border rounded transition-colors ${
+              reorderMode 
+                ? 'border-blue-600 text-blue-400' 
+                : 'border-green-800 hover:border-green-600'
+            }`}
+          >
+            {reorderMode ? 'Done Reordering' : 'Reorder Photos'}
+          </button>
+          <button
+            onClick={() => {
               setBulkMode(!bulkMode);
+              setReorderMode(false);
               setSelectedPhotos(new Set());
             }}
             className={`px-4 py-2 border rounded transition-colors ${
@@ -183,7 +240,21 @@ export default function PhotosManagementPage() {
       </div>
             
       {/* Photo Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {reorderMode ? (
+        <SortablePhotoGrid
+          photos={photos}
+          selectedPhotos={selectedPhotos}
+          onPhotosReorder={handlePhotosReorder}
+          onToggleSelect={togglePhotoSelection}
+          onToggleFeatured={toggleFeatured}
+          onEdit={(photo) => {
+            setSelectedPhoto(photo);
+            setEditMode(true);
+          }}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {photos.map(photo => (
           <div
             key={photo.id}
@@ -259,7 +330,8 @@ export default function PhotosManagementPage() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
       
       {/* Empty State */}
       {photos.length === 0 && (

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { toast } from 'sonner';
+import ExifDisplay from './ExifDisplay';
 
 interface Photo {
   id: string;
@@ -11,6 +12,7 @@ interface Photo {
   category_id: string | null;
   is_featured: boolean;
   display_order: number;
+  metadata?: Record<string, any>;
 }
 
 interface Category {
@@ -154,6 +156,13 @@ export default function EditPhotoModal({
             Featured Photo
           </label>
         </div>
+        
+        {/* EXIF Data Display */}
+        {photo.metadata && (
+          <div className="mt-4">
+            <ExifDisplay metadata={photo.metadata} />
+          </div>
+        )}
         
         <div className="flex justify-end space-x-3 pt-4">
           <button

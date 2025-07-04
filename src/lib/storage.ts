@@ -1,6 +1,7 @@
 import { createClient } from './supabase-client';
 import { createClient as createServerClient } from './supabase-server';
 import { CreatePhotoInput } from './types';
+import exifr from 'exifr';
 
 // Storage bucket names
 export const PHOTOS_BUCKET = 'photos';
@@ -20,6 +21,52 @@ export const ALLOWED_IMAGE_TYPES = [
 interface ImageDimensions {
   width: number;
   height: number;
+}
+
+interface ExifData {
+  camera?: string;
+  lens?: string;
+  focalLength?: number;
+  aperture?: number;
+  shutterSpeed?: string;
+  iso?: number;
+  dateTime?: string;
+  latitude?: number;
+  longitude?: number;
+  [key: string]: any;
+}
+
+/**
+ * Extract EXIF data from image file
+ */
+export async function extractExifData(file: File): Promise<ExifData | null> {
+  try {
+    const exif = await exifr.parse(file, {
+      // Pick specific tags we're interested in
+      pick: [
+        'Make', 'Model', 'LensModel', 'FocalLength', 'FNumber', 
+        'ExposureTime', 'ISO', 'DateTimeOriginal', 'latitude', 'longitude'
+      ]
+    });
+    
+    if (!exif) return null;
+    
+    return {
+      camera: exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : undefined,
+      lens: exif.LensModel,
+      focalLength: exif.FocalLength,
+      aperture: exif.FNumber,
+      shutterSpeed: exif.ExposureTime ? `1/${Math.round(1/exif.ExposureTime)}` : undefined,
+      iso: exif.ISO,
+      dateTime: exif.DateTimeOriginal,
+      latitude: exif.latitude,
+      longitude: exif.longitude,
+      ...exif
+    };
+  } catch (error) {
+    console.error('Failed to extract EXIF data:', error);
+    return null;
+  }
 }
 
 /**
