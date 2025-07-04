@@ -18,6 +18,11 @@ export async function PUT(
     const body = await request.json();
     const { id } = params;
     
+    // Clean up empty strings for UUID fields
+    if (body.category_id === '') {
+      body.category_id = null;
+    }
+    
     // Update photo
     const { data, error } = await supabase
       .from('photos')

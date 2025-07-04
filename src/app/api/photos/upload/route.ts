@@ -24,6 +24,10 @@ export async function POST(request: NextRequest) {
     const categoryId = formData.get('category_id') as string | null;
     const isFeatured = formData.get('is_featured') === 'true';
     
+    // Convert empty strings to null for database fields
+    const cleanDescription = description?.trim() || null;
+    const cleanCategoryId = categoryId?.trim() || null;
+    
     // Validate required fields
     if (!file || !title) {
       return NextResponse.json(
@@ -63,7 +67,8 @@ export async function POST(request: NextRequest) {
       .from('photos')
       .insert({
         title,
-        description,        category_id: categoryId,
+        description: cleanDescription,
+        category_id: cleanCategoryId,
         filename: file.name,
         file_size: file.size,
         width: dimensions.width,
