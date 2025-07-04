@@ -58,9 +58,12 @@ export async function POST(request: NextRequest) {
     
     // Upload main image
     const { path: storagePath, publicUrl } = await uploadImage(file, PHOTOS_BUCKET, true);
+    console.log('Main image uploaded successfully:', { storagePath, publicUrl });
     
-    // Create thumbnail
-    const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnail(file, true);
+    // Create thumbnail - for now, use the same URL
+    // TODO: Implement proper thumbnail generation with image resizing
+    const thumbnailPath = storagePath;
+    const thumbnailUrl = publicUrl;
     
     // Save to database
     const { data, error } = await supabase
@@ -78,6 +81,7 @@ export async function POST(request: NextRequest) {
         thumbnail_path: thumbnailPath,
         thumbnail_url: thumbnailUrl,
         is_featured: isFeatured,
+        display_order: 999, // Default to end of list
         metadata: {
           originalName: file.name,
           mimeType: file.type,
@@ -90,9 +94,9 @@ export async function POST(request: NextRequest) {
       
     if (error) {
       // If database insert fails, try to clean up uploaded files
-      // (You might want to handle this more gracefully)
+      console.error('Database insert error:', error);
       return NextResponse.json(
-        { error: error.message },
+        { error: `Database error: ${error.message}` },
         { status: 500 }
       );
     }
