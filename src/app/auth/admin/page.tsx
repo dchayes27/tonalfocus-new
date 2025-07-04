@@ -101,11 +101,10 @@ export default function AdminLoginPage() {
             </button>
           </div>
           
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-center text-green-600">
-              Dev mode: Use admin/admin123
-            </div>
-          )}
+          
+          <div className="text-xs text-center text-green-600">
+            Dev mode: Use admin/admin123
+          </div>
         </form>
       </div>
     </div>
