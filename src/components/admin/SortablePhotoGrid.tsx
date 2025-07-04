@@ -84,10 +84,11 @@ function SortablePhoto({
       <div
         {...attributes}
         {...listeners}
-        className="absolute top-2 left-2 z-20 cursor-move bg-black/50 p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 left-2 z-20 cursor-move bg-black/75 p-2 rounded border border-green-400 opacity-100 hover:bg-green-900/50 transition-all"
+        title="Drag to reorder"
       >
-        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+        <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </div>
 

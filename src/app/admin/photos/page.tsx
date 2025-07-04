@@ -210,7 +210,7 @@ export default function PhotosManagementPage() {
             }}
             className={`px-4 py-2 border rounded transition-colors ${
               reorderMode 
-                ? 'border-blue-600 text-blue-400' 
+                ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700' 
                 : 'border-green-800 hover:border-green-600'
             }`}
           >
@@ -224,7 +224,7 @@ export default function PhotosManagementPage() {
             }}
             className={`px-4 py-2 border rounded transition-colors ${
               bulkMode 
-                ? 'border-yellow-600 text-yellow-400' 
+                ? 'bg-yellow-600 text-white border-yellow-600 hover:bg-yellow-700' 
                 : 'border-green-800 hover:border-green-600'
             }`}
           >
@@ -241,18 +241,23 @@ export default function PhotosManagementPage() {
             
       {/* Photo Grid */}
       {reorderMode ? (
-        <SortablePhotoGrid
-          photos={photos}
-          selectedPhotos={selectedPhotos}
-          onPhotosReorder={handlePhotosReorder}
-          onToggleSelect={togglePhotoSelection}
-          onToggleFeatured={toggleFeatured}
-          onEdit={(photo) => {
-            setSelectedPhoto(photo);
-            setEditMode(true);
-          }}
-          onDelete={handleDelete}
-        />
+        <>
+          <div className="bg-blue-900/20 border border-blue-600 rounded p-3 text-sm">
+            <span className="text-blue-400">📋 Reorder Mode:</span> Drag photos using the ≡ handle in the top-left corner of each photo. Click "Save Order" when done.
+          </div>
+          <SortablePhotoGrid
+            photos={photos}
+            selectedPhotos={selectedPhotos}
+            onPhotosReorder={handlePhotosReorder}
+            onToggleSelect={togglePhotoSelection}
+            onToggleFeatured={toggleFeatured}
+            onEdit={(photo) => {
+              setSelectedPhoto(photo);
+              setEditMode(true);
+            }}
+            onDelete={handleDelete}
+          />
+        </>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {photos.map(photo => (
