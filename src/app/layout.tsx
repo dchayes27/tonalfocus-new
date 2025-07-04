@@ -4,6 +4,7 @@ import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/components/ui/logo';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -84,6 +85,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        <Toaster position="bottom-right" theme="dark" />
       </body>
     </html>
   );

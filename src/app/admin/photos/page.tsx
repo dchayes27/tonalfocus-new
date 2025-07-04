@@ -1,0 +1,181 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { toast } from 'sonner';
+
+interface Photo {
+  id: string;
+  title: string;
+  description: string | null;
+  category_id: string | null;
+  public_url: string;
+  thumbnail_url: string;
+  is_featured: boolean;
+  display_order: number;
+  category?: {
+    name: string;
+  };
+}
+
+export default function PhotosManagementPage() {
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  
+  // Load photos
+  useEffect(() => {
+    fetchPhotos();
+  }, []);
+  
+  const fetchPhotos = async () => {
+    try {
+      const response = await fetch('/api/photos?limit=100');
+      const data = await response.json();
+      setPhotos(data.photos || []);
+    } catch (error) {
+      toast.error('Failed to load photos');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleDelete = async (photoId: string) => {
+    if (!confirm('Are you sure you want to delete this photo?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/admin/photos/${photoId}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete');
+      }
+      
+      toast.success('Photo deleted successfully');
+      fetchPhotos();
+    } catch (error) {
+      toast.error('Failed to delete photo');
+    }
+  };
+  
+  const toggleFeatured = async (photo: Photo) => {
+    try {
+      const response = await fetch(`/api/admin/photos/${photo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_featured: !photo.is_featured })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update');
+      }
+      
+      toast.success(`Photo ${photo.is_featured ? 'unfeatured' : 'featured'}`);
+      fetchPhotos();
+    } catch (error) {
+      toast.error('Failed to update photo');
+    }
+  };
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold font-mono">
+          Manage Photos ({photos.length})
+        </h1>
+        <Link
+          href="/admin/photos/upload"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+        >
+          Upload Photos
+        </Link>
+      </div>
+      
+      {/* Photo Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {photos.map(photo => (
+          <div
+            key={photo.id}
+            className="bg-gray-900 border border-green-800 rounded-lg overflow-hidden group"
+          >
+            {/* Image */}
+            <div className="aspect-video relative">
+              <Image
+                src={photo.thumbnail_url || photo.public_url}
+                alt={photo.title}
+                fill
+                className="object-cover"
+              />
+              
+              {/* Featured Badge */}
+              {photo.is_featured && (
+                <div className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
+                  FEATURED
+                </div>
+              )}
+              
+              {/* Hover Actions */}
+              <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                <button
+                  onClick={() => toggleFeatured(photo)}
+                  className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-sm"
+                >
+                  {photo.is_featured ? 'Unfeature' : 'Feature'}
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedPhoto(photo);
+                    setEditMode(true);
+                  }}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(photo.id)}
+                  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+            
+            {/* Info */}
+            <div className="p-3">
+              <h3 className="font-semibold truncate">{photo.title}</h3>
+              {photo.category && (
+                <p className="text-xs text-gray-400">{photo.category.name}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Empty State */}
+      {photos.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-400 mb-4">No photos uploaded yet</p>
+          <Link
+            href="/admin/photos/upload"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors inline-block"
+          >
+            Upload Your First Photo
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
