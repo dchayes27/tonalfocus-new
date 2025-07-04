@@ -176,7 +176,6 @@ export default function SortablePhotoGrid({
   onEdit,
   onDelete,
 }: SortablePhotoGridProps) {
-  console.log('SortablePhotoGrid rendering with', photos.length, 'photos');
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(

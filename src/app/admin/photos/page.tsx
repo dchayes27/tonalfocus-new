@@ -207,11 +207,9 @@ export default function PhotosManagementPage() {
           )}
           <button
             onClick={() => {
-              console.log('Reorder button clicked, current state:', reorderMode);
               setReorderMode(!reorderMode);
               setBulkMode(false);
               setSelectedPhotos(new Set());
-              console.log('New reorder state will be:', !reorderMode);
             }}
             className={`px-4 py-2 border rounded transition-colors ${
               reorderMode 
@@ -373,10 +371,6 @@ export default function PhotosManagementPage() {
         }}
         onUpdate={() => {
           fetchPhotos();
-          // Preserve reorder mode state
-          if (reorderMode) {
-            console.log('Preserving reorder mode after update');
-          }
         }}
       />
     </div>
