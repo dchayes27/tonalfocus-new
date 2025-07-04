@@ -11,6 +11,7 @@ interface Photo {
   description: string | null;
   category_id: string | null;
   is_featured: boolean;
+  is_color: boolean;
   display_order: number;
   metadata?: Record<string, any>;
 }
@@ -40,6 +41,7 @@ export default function EditPhotoModal({
     description: '',
     category_id: '',
     is_featured: false,
+    is_color: true,
     display_order: 0
   });
   const [saving, setSaving] = useState(false);
@@ -52,6 +54,7 @@ export default function EditPhotoModal({
         description: photo.description || '',
         category_id: photo.category_id || '',
         is_featured: photo.is_featured,
+        is_color: photo.is_color ?? true,
         display_order: photo.display_order
       });
     }
@@ -144,17 +147,32 @@ export default function EditPhotoModal({
           />
         </div>
         
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="is_featured"
-            checked={formData.is_featured}
-            onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-            className="mr-2"
-          />
-          <label htmlFor="is_featured" className="text-sm text-green-400">
-            Featured Photo
-          </label>
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="is_featured"
+              checked={formData.is_featured}
+              onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+              className="mr-2"
+            />
+            <label htmlFor="is_featured" className="text-sm text-green-400">
+              Featured Photo
+            </label>
+          </div>
+          
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="is_color"
+              checked={formData.is_color}
+              onChange={(e) => setFormData({ ...formData, is_color: e.target.checked })}
+              className="mr-2"
+            />
+            <label htmlFor="is_color" className="text-sm text-green-400">
+              Color Photo
+            </label>
+          </div>
         </div>
         
         {/* EXIF Data Display */}

@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     const description = formData.get('description') as string | null;
     const categoryId = formData.get('category_id') as string | null;
     const isFeatured = formData.get('is_featured') === 'true';
+    const isColor = formData.get('is_color') !== 'false';
     
     // Convert empty strings to null for database fields
     const cleanDescription = description?.trim() || null;
@@ -80,12 +81,14 @@ export async function POST(request: NextRequest) {
         thumbnail_path: thumbnailPath,
         thumbnail_url: thumbnailUrl,
         is_featured: isFeatured,
+        is_color: isColor,
         display_order: 999, // Default to end of list
         metadata: {
           originalName: file.name,
           mimeType: file.type,
           uploadedAt: new Date().toISOString(),
-          exif: exifData || {}
+          exif: exifData || {},
+          isColor: isColor
         }
       })
       .select()

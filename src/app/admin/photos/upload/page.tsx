@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { detectImageColorMode } from '@/lib/image-analysis';
 
 interface UploadFile extends File {
   preview?: string;
@@ -15,6 +16,7 @@ interface UploadFile extends File {
     description: string;
     category_id: string;
     is_featured: boolean;
+    is_color?: boolean;
   };
 }
 
@@ -37,13 +39,18 @@ export default function PhotoUploadPage() {
       .then(data => setCategories(data.categories || []));
   }, []);
   
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const loadingToast = toast.loading(`Analyzing ${acceptedFiles.length} photo(s)...`);
+    
+    const newFiles = await Promise.all(acceptedFiles.map(async (file) => {
       // Generate title from filename
       const titleFromFilename = file.name
         .split('.')[0]
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, l => l.toUpperCase());
+      
+      // Detect if image is color or B&W
+      const isColor = await detectImageColorMode(file);
       
       // Create proper File object with all properties
       const uploadFile = Object.assign(file, {
@@ -54,7 +61,8 @@ export default function PhotoUploadPage() {
           title: titleFromFilename,
           description: '',
           category_id: '',
-          is_featured: false
+          is_featured: false,
+          is_color: isColor
         }
       }) as UploadFile;
       
@@ -63,11 +71,16 @@ export default function PhotoUploadPage() {
         name: file.name,
         size: file.size,
         type: file.type,
-        sizeMB: (file.size / 1024 / 1024).toFixed(2)
+        sizeMB: (file.size / 1024 / 1024).toFixed(2),
+        isColor: isColor ? 'Color' : 'Black & White'
       });
         
       return uploadFile;
-    });
+    }));
+    
+    toast.dismiss(loadingToast);
+    toast.success(`Detected ${newFiles.filter(f => f.metadata?.is_color).length} color and ${newFiles.filter(f => !f.metadata?.is_color).length} B&W photos`);
+    
     setFiles(prev => [...prev, ...newFiles]);
   }, []);
   
@@ -92,6 +105,7 @@ export default function PhotoUploadPage() {
     formData.append('description', file.metadata?.description || '');
     formData.append('category_id', file.metadata?.category_id || '');
     formData.append('is_featured', String(file.metadata?.is_featured || false));
+    formData.append('is_color', String(file.metadata?.is_color !== false));
     
     // Update status
     setFiles(prev => prev.map((f, i) => 
@@ -282,15 +296,26 @@ export default function PhotoUploadPage() {
                           rows={2}
                         />
                         <div className="flex items-center justify-between">
-                          <label className="flex items-center text-sm">
-                            <input
-                              type="checkbox"
-                              checked={file.metadata?.is_featured || false}
-                              onChange={(e) => updateFileMetadata(index, { is_featured: e.target.checked })}
-                              className="mr-2"
-                            />
-                            Featured
-                          </label>
+                          <div className="flex items-center space-x-4">
+                            <label className="flex items-center text-sm">
+                              <input
+                                type="checkbox"
+                                checked={file.metadata?.is_featured || false}
+                                onChange={(e) => updateFileMetadata(index, { is_featured: e.target.checked })}
+                                className="mr-2"
+                              />
+                              Featured
+                            </label>
+                            <label className="flex items-center text-sm">
+                              <input
+                                type="checkbox"
+                                checked={file.metadata?.is_color !== false}
+                                onChange={(e) => updateFileMetadata(index, { is_color: e.target.checked })}
+                                className="mr-2"
+                              />
+                              Color
+                            </label>
+                          </div>
                           <button
                             onClick={() => setEditingIndex(null)}
                             className="text-sm text-green-400 hover:text-green-300"
@@ -307,6 +332,7 @@ export default function PhotoUploadPage() {
                             <h3 className="font-semibold">{file.metadata?.title || file.name}</h3>
                             <p className="text-xs text-gray-400">
                               {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Size unknown'}
+                              <span className="ml-2">• {file.metadata?.is_color !== false ? 'Color' : 'B&W'}</span>
                               {file.metadata?.category_id && categories.find(c => c.id === file.metadata?.category_id) && (
                                 <span className="ml-2">• {categories.find(c => c.id === file.metadata?.category_id)?.name}</span>
                               )}

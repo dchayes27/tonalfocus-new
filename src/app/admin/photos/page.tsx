@@ -15,6 +15,7 @@ interface Photo {
   public_url: string;
   thumbnail_url: string;
   is_featured: boolean;
+  is_color: boolean;
   display_order: number;
   metadata?: Record<string, any>;
   category?: {
@@ -335,9 +336,17 @@ export default function PhotosManagementPage() {
             {/* Info */}
             <div className="p-3">
               <h3 className="font-semibold truncate">{photo.title}</h3>
-              {photo.category && (
-                <p className="text-xs text-gray-400">{photo.category.name}</p>
-              )}
+              <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                <span className={photo.is_color ? 'text-blue-400' : 'text-gray-300'}>
+                  {photo.is_color ? '🎨 Color' : '⚫ B&W'}
+                </span>
+                {photo.category && (
+                  <>
+                    <span>•</span>
+                    <span>{photo.category.name}</span>
+                  </>
+                )}
+              </div>
               <p className="text-xs text-gray-500 mt-1">
                 Order: {photo.display_order}
               </p>
