@@ -29,7 +29,7 @@ export interface Photo {
   created_at: string;
   updated_at: string;
   // Joined data
-  category?: Category;
+  category?: Category | null;
 }
 
 export interface PhotoWithCategory extends Photo {
