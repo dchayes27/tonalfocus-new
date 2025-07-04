@@ -60,10 +60,9 @@ export async function POST(request: NextRequest) {
     const { path: storagePath, publicUrl } = await uploadImage(file, PHOTOS_BUCKET, true);
     console.log('Main image uploaded successfully:', { storagePath, publicUrl });
     
-    // Create thumbnail - for now, use the same URL
-    // TODO: Implement proper thumbnail generation with image resizing
-    const thumbnailPath = storagePath;
-    const thumbnailUrl = publicUrl;
+    // Create thumbnail
+    const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnail(file, true);
+    console.log('Thumbnail created successfully:', { thumbnailPath, thumbnailUrl });
     
     // Save to database
     const { data, error } = await supabase
