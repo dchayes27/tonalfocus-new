@@ -1,4 +1,5 @@
 import { createClient } from './supabase-client';
+import { createClient as createServerClient } from './supabase-server';
 import { CreatePhotoInput } from './types';
 
 // Storage bucket names
@@ -23,8 +24,15 @@ interface ImageDimensions {
 
 /**
  * Get image dimensions from a File object
+ * Note: This only works in browser environment
  */
 export function getImageDimensions(file: File): Promise<ImageDimensions> {
+  // For server-side, we'll return default dimensions
+  // In production, you'd use a library like sharp
+  if (typeof window === 'undefined') {
+    return Promise.resolve({ width: 1920, height: 1080 });
+  }
+  
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -58,9 +66,10 @@ export function generateStorageFilename(originalFilename: string): string {
  */
 export async function uploadImage(
   file: File,
-  bucket: string = PHOTOS_BUCKET
+  bucket: string = PHOTOS_BUCKET,
+  isServer: boolean = false
 ): Promise<{ path: string; publicUrl: string }> {
-  const supabase = createClient();
+  const supabase = isServer ? createServerClient() : createClient();
   
   // Validate file type
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -96,8 +105,12 @@ export async function uploadImage(
 /**
  * Delete an image from Supabase Storage
  */
-export async function deleteImage(path: string, bucket: string = PHOTOS_BUCKET): Promise<void> {
-  const supabase = createClient();
+export async function deleteImage(
+  path: string, 
+  bucket: string = PHOTOS_BUCKET,
+  isServer: boolean = false
+): Promise<void> {
+  const supabase = isServer ? createServerClient() : createClient();
   
   const { error } = await supabase.storage
     .from(bucket)
@@ -112,8 +125,11 @@ export async function deleteImage(path: string, bucket: string = PHOTOS_BUCKET):
  * Create a thumbnail (for now, we'll use the same image)
  * In production, you'd want to use a service like Sharp or ImageMagick
  */
-export async function createThumbnail(file: File): Promise<{ path: string; publicUrl: string }> {
+export async function createThumbnail(
+  file: File,
+  isServer: boolean = false
+): Promise<{ path: string; publicUrl: string }> {
   // For now, upload the same image to thumbnails bucket
   // In production, you'd resize the image first
-  return uploadImage(file, THUMBNAILS_BUCKET);
+  return uploadImage(file, THUMBNAILS_BUCKET, isServer);
 }

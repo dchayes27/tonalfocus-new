@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@/lib/supabase-server';
 import { 
   uploadImage, 
   createThumbnail, 
   getImageDimensions,
   ALLOWED_IMAGE_TYPES,
-  MAX_FILE_SIZE 
+  MAX_FILE_SIZE,
+  PHOTOS_BUCKET 
 } from '@/lib/storage';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const supabase = createClient();
     
     // Check authentication (you'll implement this later)
     // For now, we'll allow uploads but you should add auth
@@ -48,10 +49,10 @@ export async function POST(request: NextRequest) {
     const dimensions = await getImageDimensions(file);
     
     // Upload main image
-    const { path: storagePath, publicUrl } = await uploadImage(file);
+    const { path: storagePath, publicUrl } = await uploadImage(file, PHOTOS_BUCKET, true);
     
     // Create thumbnail
-    const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnail(file);
+    const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnail(file, true);
     
     // Save to database
     const { data, error } = await supabase
