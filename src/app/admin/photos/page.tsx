@@ -183,7 +183,10 @@ export default function PhotosManagementPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold font-mono">
-          Manage Photos ({photos.length}) {reorderMode && <span className="text-blue-400">[REORDER MODE]</span>}
+          Manage Photos ({photos.length})
+          {reorderMode && (
+            <span className="text-blue-400 text-2xl ml-2">[REORDER MODE]</span>
+          )}
         </h1>
         <div className="flex items-center space-x-4">
           {hasReordered && (
