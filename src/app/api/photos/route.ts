@@ -1,0 +1,66 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase-server';
+
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = createClient();
+    const searchParams = request.nextUrl.searchParams;
+    
+    // Get query parameters
+    const category = searchParams.get('category');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    const featured = searchParams.get('featured') === 'true';
+
+    // Build query
+    let query = supabase
+      .from('photos')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .order('display_order', { ascending: true })
+      .range(offset, offset + limit - 1);
+
+    // Apply filters
+    if (category) {
+      // First get category ID from slug
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', category)
+        .single();
+      
+      if (categoryData) {
+        query = query.eq('category_id', categoryData.id);
+      }
+    }
+    
+    if (featured) {
+      query = query.eq('is_featured', true);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ 
+      photos: data || [],
+      pagination: {
+        limit,
+        offset,
+        hasMore: data?.length === limit
+      }
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
