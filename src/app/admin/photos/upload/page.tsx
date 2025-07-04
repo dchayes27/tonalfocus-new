@@ -67,7 +67,6 @@ export default function PhotoUploadPage() {
       });
         
       return uploadFile;
-      });
     });
     setFiles(prev => [...prev, ...newFiles]);
   }, []);
