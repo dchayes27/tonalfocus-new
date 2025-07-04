@@ -183,7 +183,7 @@ export default function PhotosManagementPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold font-mono">
-          Manage Photos ({photos.length})
+          Manage Photos ({photos.length}) {reorderMode && <span className="text-blue-400">[REORDER MODE]</span>}
         </h1>
         <div className="flex items-center space-x-4">
           {hasReordered && (
@@ -249,18 +249,24 @@ export default function PhotosManagementPage() {
           <div className="bg-blue-900/20 border border-blue-600 rounded p-3 text-sm">
             <span className="text-blue-400">📋 Reorder Mode:</span> Drag photos using the ≡ handle in the top-left corner of each photo. Click "Save Order" when done.
           </div>
-          <SortablePhotoGrid
-            photos={photos}
-            selectedPhotos={selectedPhotos}
-            onPhotosReorder={handlePhotosReorder}
-            onToggleSelect={togglePhotoSelection}
-            onToggleFeatured={toggleFeatured}
-            onEdit={(photo) => {
-              setSelectedPhoto(photo);
-              setEditMode(true);
-            }}
-            onDelete={handleDelete}
-          />
+          {photos.length > 0 ? (
+            <SortablePhotoGrid
+              photos={photos}
+              selectedPhotos={selectedPhotos}
+              onPhotosReorder={handlePhotosReorder}
+              onToggleSelect={togglePhotoSelection}
+              onToggleFeatured={toggleFeatured}
+              onEdit={(photo) => {
+                setSelectedPhoto(photo);
+                setEditMode(true);
+              }}
+              onDelete={handleDelete}
+            />
+          ) : (
+            <div className="text-center py-8 text-gray-400">
+              No photos to reorder
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -367,7 +373,13 @@ export default function PhotosManagementPage() {
           setEditMode(false);
           setSelectedPhoto(null);
         }}
-        onUpdate={fetchPhotos}
+        onUpdate={() => {
+          fetchPhotos();
+          // Preserve reorder mode state
+          if (reorderMode) {
+            console.log('Preserving reorder mode after update');
+          }
+        }}
       />
     </div>
   );

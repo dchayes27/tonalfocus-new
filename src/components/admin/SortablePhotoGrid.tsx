@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -176,7 +176,8 @@ export default function SortablePhotoGrid({
   onEdit,
   onDelete,
 }: SortablePhotoGridProps) {
-  const [activeId, setActiveId] = React.useState<string | null>(null);
+  console.log('SortablePhotoGrid rendering with', photos.length, 'photos');
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
