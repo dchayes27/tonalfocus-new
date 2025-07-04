@@ -204,9 +204,11 @@ export default function PhotosManagementPage() {
           )}
           <button
             onClick={() => {
+              console.log('Reorder button clicked, current state:', reorderMode);
               setReorderMode(!reorderMode);
               setBulkMode(false);
               setSelectedPhotos(new Set());
+              console.log('New reorder state will be:', !reorderMode);
             }}
             className={`px-4 py-2 border rounded transition-colors ${
               reorderMode 
@@ -240,8 +242,10 @@ export default function PhotosManagementPage() {
       </div>
             
       {/* Photo Grid */}
+      {console.log('Rendering photo grid, reorderMode:', reorderMode)}
       {reorderMode ? (
         <>
+          {console.log('Rendering SortablePhotoGrid')}
           <div className="bg-blue-900/20 border border-blue-600 rounded p-3 text-sm">
             <span className="text-blue-400">📋 Reorder Mode:</span> Drag photos using the ≡ handle in the top-left corner of each photo. Click "Save Order" when done.
           </div>
@@ -259,7 +263,9 @@ export default function PhotosManagementPage() {
           />
         </>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <>
+          {console.log('Rendering normal photo grid')}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {photos.map(photo => (
           <div
             key={photo.id}
@@ -336,6 +342,7 @@ export default function PhotosManagementPage() {
           </div>
         ))}
         </div>
+        </>
       )}
       
       {/* Empty State */}
