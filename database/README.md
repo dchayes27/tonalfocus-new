@@ -43,7 +43,10 @@
 - Row Level Security enabled
 - Indexes for performance
 
+## Storage Setup
+- See [STORAGE_SETUP.md](./STORAGE_SETUP.md) for detailed Supabase Storage configuration
+
 ## Next Steps
-- Set up Cloudinary for image storage
-- Create API routes for photo management
-- Build admin interface
+- ✅ Set up Supabase Storage for image storage
+- ✅ Create API routes for photo management
+- Build admin interface (DAN-19)

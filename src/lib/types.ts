@@ -19,8 +19,10 @@ export interface Photo {
   file_size: number;
   width: number;
   height: number;
-  cloudinary_url: string;
-  thumbnail_url: string;
+  storage_path: string;      // Path in Supabase Storage
+  public_url: string;        // Public URL from Supabase Storage
+  thumbnail_path: string;    // Thumbnail path in storage
+  thumbnail_url: string;     // Thumbnail public URL
   display_order: number;
   is_featured: boolean;
   metadata: Record<string, any>;
@@ -43,7 +45,9 @@ export interface CreatePhotoInput {
   file_size: number;
   width: number;
   height: number;
-  cloudinary_url: string;
+  storage_path: string;
+  public_url: string;
+  thumbnail_path: string;
   thumbnail_url: string;
   display_order?: number;
   is_featured?: boolean;

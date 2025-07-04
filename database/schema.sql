@@ -1,5 +1,5 @@
--- TonalFocus Photography Portfolio Database Schema
--- PostgreSQL/Supabase
+-- Updated TonalFocus Photography Portfolio Database Schema
+-- PostgreSQL/Supabase with Supabase Storage
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -15,7 +15,7 @@ CREATE TABLE categories (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Photos table
+-- Photos table (updated for Supabase Storage)
 CREATE TABLE photos (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
@@ -25,8 +25,10 @@ CREATE TABLE photos (
     file_size BIGINT NOT NULL,
     width INTEGER NOT NULL,
     height INTEGER NOT NULL,
-    cloudinary_url TEXT NOT NULL,
-    thumbnail_url TEXT NOT NULL,
+    storage_path TEXT NOT NULL, -- Path in Supabase Storage bucket
+    public_url TEXT NOT NULL,    -- Public URL from Supabase Storage
+    thumbnail_path TEXT NOT NULL, -- Thumbnail path in storage
+    thumbnail_url TEXT NOT NULL,  -- Thumbnail public URL
     display_order INTEGER DEFAULT 0,
     is_featured BOOLEAN DEFAULT FALSE,
     metadata JSONB DEFAULT '{}',
@@ -65,10 +67,7 @@ INSERT INTO categories (name, slug, description, display_order) VALUES
     ('Black & White', 'black-white', 'Monochrome photography', 5),
     ('Abstract', 'abstract', 'Abstract and conceptual photography', 6);
 
--- Add RLS (Row Level Security) policies if using Supabase Auth
--- For now, we'll keep it simple with public read access
-
--- Enable RLS
+-- Enable RLS (Row Level Security)
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 
@@ -76,4 +75,6 @@ ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can view categories" ON categories FOR SELECT USING (true);
 CREATE POLICY "Public can view photos" ON photos FOR SELECT USING (true);
 
--- Admin policies would be added here based on auth setup
+-- Storage bucket setup (run in Supabase Dashboard under Storage)
+-- 1. Create a bucket named 'photos' with public access
+-- 2. Create a bucket named 'thumbnails' with public access
