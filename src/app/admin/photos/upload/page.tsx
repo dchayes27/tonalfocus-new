@@ -44,8 +44,9 @@ export default function PhotoUploadPage() {
         .split('.')[0]
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, l => l.toUpperCase());
-        
-      return Object.assign(file, {
+      
+      // Create proper File object with all properties
+      const uploadFile = Object.assign(file, {
         preview: URL.createObjectURL(file),
         uploadProgress: 0,
         uploadStatus: 'pending' as const,
@@ -55,6 +56,17 @@ export default function PhotoUploadPage() {
           category_id: '',
           is_featured: false
         }
+      }) as UploadFile;
+      
+      // Log file info for debugging
+      console.log('File info:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        sizeMB: (file.size / 1024 / 1024).toFixed(2)
+      });
+        
+      return uploadFile;
       });
     });
     setFiles(prev => [...prev, ...newFiles]);
@@ -65,7 +77,7 @@ export default function PhotoUploadPage() {
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.webp']
     },
-    maxSize: 10 * 1024 * 1024 // 10MB
+    maxSize: 50 * 1024 * 1024 // 50MB
   });
   
   const updateFileMetadata = (index: number, metadata: any) => {
@@ -183,7 +195,7 @@ export default function PhotoUploadPage() {
               : 'Drag & drop photos here, or click to select'}
           </p>
           <p className="text-sm text-gray-400">
-            Supports JPEG, PNG, WebP (max 10MB)
+            Supports JPEG, PNG, WebP (max 50MB)
           </p>
         </div>
       </div>
@@ -295,7 +307,7 @@ export default function PhotoUploadPage() {
                           <div className="flex-1">
                             <h3 className="font-semibold">{file.metadata?.title || file.name}</h3>
                             <p className="text-xs text-gray-400">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                              {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Size unknown'}
                               {file.metadata?.category_id && categories.find(c => c.id === file.metadata?.category_id) && (
                                 <span className="ml-2">• {categories.find(c => c.id === file.metadata?.category_id)?.name}</span>
                               )}
