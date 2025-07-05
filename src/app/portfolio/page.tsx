@@ -106,19 +106,34 @@ export default function Portfolio() {
 
       {/* Gallery */}
       <div className="container mx-auto px-4 py-16">
-        <Gallery 
-          images={filteredImages}
-          columns={3}
-          gap="medium"
-          aspectRatio="landscape"
-          withHoverEffect={true}
-        />
-        
-        {/* If no images match the filter */}
-        {filteredImages.length === 0 && (
+        {isLoading && (
+          <div className="text-center py-20">
+            <p className="text-lg text-primary-charcoal/60">Loading photos...</p>
+            {/* Basic spinner */}
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-teal mt-4"></div>
+          </div>
+        )}
+        {error && (
+          <div className="text-center py-20 text-red-500">
+            <p>{error}</p>
+            <Button variant="primary" onClick={() => fetchPhotos(activeCategorySlug)}>
+              Try Again
+            </Button>
+          </div>
+        )}
+        {!isLoading && !error && photos.length > 0 && (
+          <Gallery
+            images={photos} // Use photos state here
+            columns={3}
+            gap="medium"
+            aspectRatio="landscape"
+            withHoverEffect={true}
+          />
+        )}
+        {!isLoading && !error && photos.length === 0 && (
           <div className="text-center py-20">
             <p className="text-lg text-primary-charcoal/60 mb-4">No images found in this category.</p>
-            <Button variant="primary" onClick={() => setActiveCategory('All')}>
+            <Button variant="primary" onClick={() => handleCategoryClick(null)}> {/* Use handleCategoryClick(null) */}
               View All Categories
             </Button>
           </div>
