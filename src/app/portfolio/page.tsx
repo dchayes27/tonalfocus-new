@@ -88,12 +88,12 @@ export default function Portfolio() {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-2">
             {categories.map(category => (
-              <button 
-                key={category}
-                onClick={() => setActiveCategory(category)}
+              <button
+                key={category.id} // Corrected: Use category.id for the key
+                onClick={() => handleCategoryClick(category.slug)} // Corrected: Use category.slug
                 className={`px-4 py-2 transition-colors ${
-                  activeCategory === category 
-                    ? 'bg-primary-teal text-white' 
+                  activeCategorySlug === category.slug // Corrected: Compare with category.slug
+                    ? 'bg-primary-teal text-white'
                     : 'bg-secondary-offWhite hover:bg-gray-200 text-primary-charcoal'
                 }`}
               >
