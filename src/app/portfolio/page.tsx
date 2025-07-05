@@ -97,7 +97,7 @@ export default function Portfolio() {
                     : 'bg-secondary-offWhite hover:bg-gray-200 text-primary-charcoal'
                 }`}
               >
-                {category}
+                {category.name}
               </button>
             ))}
           </div>
