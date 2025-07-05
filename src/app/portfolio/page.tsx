@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Gallery from '@/components/Gallery';
+import Gallery, { GalleryImage } from '@/components/Gallery'; // Import GalleryImage
 import Button from '@/components/ui/Button';
-import { Photo, Category } from '@/lib/types'; // Assuming types are defined
+import { Category } from '@/lib/types'; // Photo type is no longer directly used for state
 
 export default function Portfolio() {
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photos, setPhotos] = useState<GalleryImage[]>([]); // Changed type to GalleryImage[]
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategorySlug, setActiveCategorySlug] = useState<string | null>(null); // null for 'All'
   const [isLoading, setIsLoading] = useState(true);
