@@ -1,11 +1,30 @@
-import type { Metadata } from 'next';
+'use client'; // Required for useState and event handlers
+
+import type { Metadata } from 'next'; // Still can use Metadata type
 import { Inter, Space_Mono, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/components/ui/logo';
+import { useState } from 'react';
+import InstagramIcon from '@/components/ui/icons/InstagramIcon';
 
-const inter = Inter({ 
+// It's generally recommended to define metadata in Server Components or specific page files
+// when converting a layout to 'use client'. However, for this specific case,
+// static metadata export should still largely work.
+// For dynamic metadata based on client state, other patterns would be needed.
+// export const metadata: Metadata = {
+// title: 'TonalFocus Photography',
+// description: 'Photography with nostalgic aesthetics',
+// keywords: ['photography', 'portfolio', 'retro', '90s aesthetic'],
+// };
+// Note: If `metadata` export is problematic with 'use client', it should be moved
+// to child Server Components or pages. For now, I'll keep it commented and assume
+// it might be handled at the page level or a parent server component if this layout
+// were nested. For a root layout, this usually implies page-level metadata.
+
+
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
@@ -24,17 +43,22 @@ const playfair = Playfair_Display({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'TonalFocus Photography',
-  description: 'Photography with nostalgic aesthetics',
-  keywords: ['photography', 'portfolio', 'retro', '90s aesthetic'],
-};
+// Removed metadata export as this is now a 'use client' component.
+// Metadata should be handled in page.tsx or parent Server Components.
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const navLinks = ['Home', 'Portfolio', 'About', 'Contact'];
+
   return (
     <html lang="en">
       <body className={`${inter.variable} ${spaceMono.variable} ${playfair.variable} font-sans`}>
@@ -43,8 +67,9 @@ export default function RootLayout({
             <div className="flex justify-between items-center">
               <Logo />
               
+              {/* Desktop Navigation */}
               <nav className="hidden md:flex space-x-6">
-                {['Home', 'Portfolio', 'About', 'Contact'].map(item => (
+                {navLinks.map(item => (
                   <Link 
                     key={item}
                     href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
@@ -55,14 +80,47 @@ export default function RootLayout({
                 ))}
               </nav>
               
-              <button className="md:hidden p-2 bg-primary-teal text-white">
-                MENU
+              {/* Mobile Menu Button */}
+              <button
+                onClick={toggleMobileMenu}
+                className="md:hidden p-2 bg-primary-teal text-white rounded hover:bg-primary-teal/90 focus:outline-none focus:ring-2 focus:ring-primary-teal focus:ring-opacity-50"
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                {isMobileMenuOpen ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
+
+          {/* Mobile Navigation Menu */}
+          {isMobileMenuOpen && (
+            <div id="mobile-menu" className="md:hidden bg-secondary-offWhite shadow-lg absolute top-full left-0 w-full z-40">
+              <nav className="flex flex-col space-y-1 px-4 py-3">
+                {navLinks.map(item => (
+                  <Link
+                    key={item}
+                    href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                    className="block uppercase text-primary-charcoal hover:text-primary-teal transition-colors py-2"
+                    onClick={() => setIsMobileMenuOpen(false)} // Close menu on link click
+                  >
+                    {item}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          )}
         </header>
         
-        <main className="min-h-screen pt-16">
+        <main className={`min-h-screen pt-16 ${isMobileMenuOpen ? 'filter blur-sm' : ''} transition-filter duration-300`}>
+          {/* Content area: apply blur if mobile menu is open */}
           {children}
         </main>
         
@@ -75,11 +133,10 @@ export default function RootLayout({
               </div>
               
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                  </svg>
+                <a href="#" className="text-gray-400 hover:text-white transition" aria-label="Instagram">
+                  <InstagramIcon />
                 </a>
+                {/* Add other social icons here if needed */}
               </div>
             </div>
           </div>

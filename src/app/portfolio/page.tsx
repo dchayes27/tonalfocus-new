@@ -1,64 +1,73 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Gallery from '@/components/Gallery';
 import Button from '@/components/ui/Button';
+import { Photo, Category } from '@/lib/types'; // Assuming types are defined
 
 export default function Portfolio() {
-  // Portfolio images - in a real application, these would likely come from a CMS or data file
-  const allImages = [
-    {
-      src: '/images/gallery1.jpg',
-      alt: 'Urban landscape photograph',
-      category: 'Urban'
-    },
-    {
-      src: '/images/gallery2.jpg',
-      alt: 'Nature photograph with trees',
-      category: 'Nature'
-    },
-    {
-      src: '/images/gallery3.jpg',
-      alt: 'Portrait photograph',
-      category: 'Portrait'
-    },
-    {
-      src: '/images/gallery4.jpg',
-      alt: 'Street photography scene',
-      category: 'Street'
-    },
-    {
-      src: '/images/gallery1.jpg',
-      alt: 'Architectural detail photograph',
-      category: 'Architecture'
-    },
-    {
-      src: '/images/gallery2.jpg',
-      alt: 'Landscape photograph with mountains',
-      category: 'Landscape'
-    },
-    {
-      src: '/images/gallery3.jpg',
-      alt: 'Abstract photograph',
-      category: 'Abstract'
-    },
-    {
-      src: '/images/gallery4.jpg',
-      alt: 'Travel photography scene',
-      category: 'Travel'
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategorySlug, setActiveCategorySlug] = useState<string | null>(null); // null for 'All'
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch Categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        if (!res.ok) {
+          throw new Error(`Failed to fetch categories: ${res.statusText}`);
+        }
+        const data = await res.json();
+        setCategories(data.categories || []);
+      } catch (err: any) {
+        console.error(err);
+        // setError('Could not load categories. Please try again later.'); // User-facing error
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch Photos
+  const fetchPhotos = useCallback(async (categorySlug: string | null) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      let url = '/api/photos?limit=50'; // Fetch more photos
+      if (categorySlug) {
+        url += `&category=${categorySlug}`;
+      }
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch photos: ${res.statusText}`);
+      }
+      const data = await res.json();
+
+      // Map API response to GalleryImage structure
+      const galleryImages = (data.photos || []).map((photo: any) => ({
+        src: photo.public_url,
+        alt: photo.title || photo.description || 'Portfolio image',
+        category: photo.category?.name, // Assuming category object is nested
+      }));
+      setPhotos(galleryImages);
+
+    } catch (err: any) {
+      console.error(err);
+      setError('Could not load photos. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  }, []);
+
+  useEffect(() => {
+    fetchPhotos(activeCategorySlug);
+  }, [activeCategorySlug, fetchPhotos]);
   
-  // Extract unique categories
-  const categories = ['All', ...new Set(allImages.map(img => img.category))];
-  
-  // State for active category
-  const [activeCategory, setActiveCategory] = useState('All');
-  
-  // Filter images based on active category
-  const filteredImages = activeCategory === 'All' 
-    ? allImages 
-    : allImages.filter(img => img.category === activeCategory);
+  const handleCategoryClick = (slug: string | null) => {
+    setActiveCategorySlug(slug);
+  };
     
   return (
     <>

@@ -103,8 +103,8 @@ export default function Home() {
               </p>
               
               <div className="mb-6">
-                <p className="mb-2"><strong>Email:</strong> info@tonalfocus.com</p>
-                <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                <p className="mb-2"><strong>Email:</strong> {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@tonalfocus.com'}</p>
+                <p><strong>Phone:</strong> {process.env.NEXT_PUBLIC_CONTACT_PHONE || '+1 (555) 123-4567'}</p>
               </div>
               
               <div className="text-center">
