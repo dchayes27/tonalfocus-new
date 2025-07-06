@@ -1,13 +1,27 @@
-import Image from 'next/image';
-import Card from '@/components/ui/Card';
+/**
+ * src/app/about/page.tsx
+ * ----------------------
+ * This file defines the "About Me" page for TonalFocus Photography.
+ * It includes information about the photographer, services offered, and the photography process.
+ * It also exports metadata for SEO purposes.
+ */
+import Image from 'next/image'; // Next.js component for optimized image rendering.
+import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
 
+// Metadata for the About page, used for SEO and browser tab information.
 export const metadata = {
   title: 'About | TonalFocus Photography',
-  description: 'Learn more about the photographer behind TonalFocus and their creative approach',
+  description: 'Learn more about the photographer behind TonalFocus and their creative approach to capturing nostalgic and modern aesthetics.',
 };
 
+/**
+ * About Page Component.
+ * Renders the content for the "/about" route.
+ * @returns {JSX.Element} The JSX for the About page.
+ */
 export default function About() {
-  // Services offered
+  // Array of objects defining the services offered.
+  // Each object contains a title and a description for the service.
   const services = [
     {
       title: 'Portrait Sessions',
@@ -23,7 +37,8 @@ export default function About() {
     }
   ];
 
-  // The photography process
+  // Array of objects defining the steps in the photography process.
+  // Each object includes the step number, title, and a description of the step.
   const processSteps = [
     {
       step: 1,
@@ -49,7 +64,8 @@ export default function About() {
 
   return (
     <>
-      {/* Page header */}
+      {/* Page Header Section */}
+      {/* Displays the main title of the About page. */}
       <div className="bg-primary-beige py-12 md:py-20">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold text-primary-charcoal text-center">
@@ -58,20 +74,22 @@ export default function About() {
         </div>
       </div>
       
-      {/* Bio section */}
+      {/* Bio Section */}
+      {/* Contains the photographer's profile image and biographical text. */}
       <section className="container mx-auto px-4 py-16">
-        <div className="flex flex-col md:flex-row gap-10 max-w-4xl mx-auto">
-          {/* Profile image */}
-          <div className="md:w-1/3 aspect-square relative overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-10 max-w-4xl mx-auto items-center md:items-start">
+          {/* Profile Image Container */}
+          <div className="md:w-1/3 aspect-square relative overflow-hidden w-full max-w-xs md:max-w-none">
             <Image
-              src="/images/profile.jpg"
-              alt="Photographer portrait"
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover"
+              src="/images/profile.jpg" // Path to the profile image.
+              alt="Photographer portrait" // Alt text for accessibility.
+              fill // Makes the image fill its container.
+              sizes="(max-width: 768px) 100vw, 33vw" // Responsive image sizing.
+              className="object-cover" // Ensures the image covers the area without distortion.
             />
             
-            {/* Film grain overlay */}
+            {/* Film Grain Overlay Effect */}
+            {/* Adds a subtle visual texture to the profile image. */}
             <div 
               className="absolute inset-0 opacity-20 mix-blend-multiply pointer-events-none"
               style={{
@@ -80,7 +98,7 @@ export default function About() {
             />
           </div>
           
-          {/* Bio content */}
+          {/* Bio Content Text */}
           <div className="md:w-2/3">
             <h2 className="text-2xl font-medium mb-4 text-primary-teal">My Story</h2>
             <p className="mb-4 leading-relaxed text-primary-charcoal">
@@ -104,13 +122,16 @@ export default function About() {
         </div>
       </section>
       
-      {/* Services section */}
+      {/* Services Section */}
+      {/* Displays the list of photography services offered using Card components. */}
       <section className="bg-primary-beige py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-medium mb-10 text-center text-primary-charcoal">SERVICES</h2>
           
+          {/* Grid layout for service cards. */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {services.map((service, index) => (
+              // Each service is rendered in a Card component.
               <Card key={index} variant="white" withGrain={true}>
                 <h3 className="text-xl font-medium mb-3 text-primary-teal">{service.title}</h3>
                 <p className="text-primary-charcoal leading-relaxed">{service.description}</p>
@@ -120,16 +141,21 @@ export default function About() {
         </div>
       </section>
       
-      {/* Process section */}
+      {/* Process Section */}
+      {/* Outlines the typical steps involved in a photography project. */}
       <section className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-medium mb-10 text-center text-primary-charcoal">MY PROCESS</h2>
         
+        {/* List of process steps. */}
         <div className="max-w-3xl mx-auto space-y-8">
           {processSteps.map((step, index) => (
+            // Each step is displayed with a number, title, and description.
             <div key={index} className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-primary-teal text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+              {/* Step Number Indicator */}
+              <div className="w-12 h-12 bg-primary-teal text-white flex items-center justify-center font-bold text-xl flex-shrink-0 rounded">
                 {step.step}
               </div>
+              {/* Step Title and Description */}
               <div>
                 <h3 className="text-xl font-medium mb-2 text-primary-teal">{step.title}</h3>
                 <p className="text-primary-charcoal leading-relaxed">{step.description}</p>
