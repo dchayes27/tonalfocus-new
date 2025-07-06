@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend with API key (lazy initialization)
+let resend: Resend | null = null;
+
+const getResendClient = () => {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+};
 
 // Rate limiting map (simple in-memory solution)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -83,8 +90,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get Resend client
+    const resendClient = getResendClient();
+    
+    if (!resendClient) {
+      console.error('Resend API key not configured');
+      return NextResponse.json(
+        { error: 'Email service is not configured. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
     // Send email using Resend
-    const data = await resend.emails.send({
+    const data = await resendClient.emails.send({
       from: 'TonalFocus Contact <noreply@tonalfocus.com>',
       to: process.env.CONTACT_EMAIL || 'info@tonalfocus.com',
       replyTo: email,
@@ -148,7 +166,7 @@ Time: ${new Date().toLocaleString()}
     });
 
     // Send auto-reply to the user
-    await resend.emails.send({
+    await resendClient.emails.send({
       from: 'TonalFocus <noreply@tonalfocus.com>',
       to: email,
       subject: 'Thank you for contacting TonalFocus',
