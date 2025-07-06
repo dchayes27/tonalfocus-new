@@ -1,21 +1,54 @@
 #!/bin/bash
 
-# Remove the current .git directory
+# reset-and-push.sh
+# -----------------
+# WARNING: This is a potentially destructive script.
+# It completely removes the existing Git history (.git directory),
+# reinitializes the repository, commits all current files as a new
+# initial commit, and force pushes to the 'main' branch of the
+# specified remote repository.
+#
+# USE WITH EXTREME CAUTION. This is typically used for starting a project
+# over with a clean Git history while preserving the current file state.
+#
+# Ensure the remote repository URL is correct before running.
+
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+# Configuration
+REMOTE_URL="https://github.com/dchayes27/tonalfocus-new.git"
+COMMIT_MESSAGE="Clean start: TonalFocus with proper Next.js image optimization" # Or a more generic initial commit message
+
+# Confirmation prompt
+read -p "WARNING: This will delete the existing .git history and force push. Are you sure? (yes/no): " confirmation
+if [ "$confirmation" != "yes" ]; then
+  echo "Operation cancelled by user."
+  exit 0
+fi
+
+echo "Removing current .git directory..."
 rm -rf .git
 
-# Initialize a new git repository
+echo "Initializing a new Git repository..."
 git init
 
-# Add all files
+echo "Adding all files to the new repository..."
 git add .
 
-# Commit the changes
-git commit -m "Clean start: TonalFocus with proper Next.js image optimization"
+echo "Committing changes with message: \"$COMMIT_MESSAGE\""
+git commit -m "$COMMIT_MESSAGE"
 
-# Add the remote repository (assuming it exists)
-git remote add origin https://github.com/dchayes27/tonalfocus-new.git
+echo "Adding remote repository: $REMOTE_URL"
+# Check if remote 'origin' already exists, remove it if it does (though unlikely after rm -rf .git)
+if git remote | grep -q "origin"; then
+  git remote rm origin
+fi
+git remote add origin "$REMOTE_URL"
 
-# Push the changes to GitHub, forcing a clean start
+echo "Force pushing changes to GitHub (main branch)..."
+# The '-f' or '--force' flag overwrites the remote history.
 git push -f origin main
 
-echo "Repository reset and pushed to GitHub!"
+echo "✅ Repository reset and force pushed to GitHub!"
+echo "Local repository is now based on a new commit history."
