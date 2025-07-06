@@ -3,12 +3,12 @@
  * --------------------------
  * Portfolio page for TonalFocus Photography.
  * Displays photos grouped by Black & White vs Color.
- * No category navigation - clean, minimal interface focused on the photography.
+ * Quality-first approach with professional gallery display.
  */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Gallery, { GalleryImage } from '@/components/Gallery';
+import PhotographyGallery from '@/components/photography/PhotographyGallery';
 import { Photo } from '@/lib/types';
 
 interface GroupedPhotos {
@@ -27,7 +27,7 @@ export default function Portfolio() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/photos?view=all&limit=100'); // Get all photos
+      const res = await fetch('/api/photos?view=all&limit=100');
       if (!res.ok) {
         throw new Error(`Failed to fetch photos: ${res.statusText}`);
       }
@@ -47,15 +47,6 @@ export default function Portfolio() {
     fetchPhotos();
   }, [fetchPhotos]);
 
-  // Convert Photo array to GalleryImage array
-  const toGalleryImages = (photos: Photo[]): GalleryImage[] => {
-    return photos.map(photo => ({
-      src: photo.public_url,
-      alt: photo.title || photo.description || 'Portfolio image',
-      category: photo.is_black_white ? 'Black & White' : 'Color'
-    }));
-  };
-
   return (
     <>
       {/* Minimal Page Header */}
@@ -74,17 +65,19 @@ export default function Portfolio() {
       <div className="container mx-auto px-4 py-16">
         {isLoading && (
           <div className="text-center py-20">
-            <p className="text-lg text-primary-charcoal/60">Loading photos...</p>
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-teal mt-4" />
+            <p className="text-lg text-primary-charcoal/60 mb-4">Loading gallery...</p>
+            <p className="text-sm text-primary-charcoal/40">
+              High-quality images may take a moment to load
+            </p>
           </div>
         )}
 
         {error && !isLoading && (
-          <div className="text-center py-20 text-red-600">
-            <p>{error}</p>
+          <div className="text-center py-20">
+            <p className="text-red-600 mb-4">{error}</p>
             <button 
               onClick={fetchPhotos}
-              className="mt-4 px-6 py-2 bg-primary-teal text-white hover:bg-primary-teal/90 transition-colors"
+              className="px-6 py-2 bg-primary-teal text-white hover:bg-primary-teal/90 transition-colors"
             >
               Try Again
             </button>
@@ -99,14 +92,17 @@ export default function Portfolio() {
                 <h2 className="text-2xl md:text-3xl font-bold text-primary-charcoal mb-8">
                   BLACK & WHITE
                 </h2>
-                <Gallery
-                  images={toGalleryImages(groupedPhotos.blackWhite)}
+                <PhotographyGallery
+                  photos={groupedPhotos.blackWhite}
                   columns={3}
                   gap="medium"
-                  aspectRatio="landscape"
-                  withHoverEffect={false} // Minimal, no hover effects
                 />
               </section>
+            )}
+
+            {/* Divider */}
+            {groupedPhotos.blackWhite.length > 0 && groupedPhotos.color.length > 0 && (
+              <div className="border-t border-gray-200" />
             )}
 
             {/* Color Section */}
@@ -115,12 +111,10 @@ export default function Portfolio() {
                 <h2 className="text-2xl md:text-3xl font-bold text-primary-charcoal mb-8">
                   COLOR
                 </h2>
-                <Gallery
-                  images={toGalleryImages(groupedPhotos.color)}
+                <PhotographyGallery
+                  photos={groupedPhotos.color}
                   columns={3}
                   gap="medium"
-                  aspectRatio="landscape"
-                  withHoverEffect={false} // Minimal, no hover effects
                 />
               </section>
             )}
