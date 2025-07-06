@@ -1,41 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import ContactForm from '@/components/forms/ContactForm';
 
 export default function Contact() {
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  
-  // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  // Handle form submission - you would normally connect this to a backend API
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // In a real application, you would send this data to a server
-    alert('Thank you for your message! I\'ll be in touch soon.');
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
-  };
-  
   // Common questions
   const faqs = [
     {
@@ -49,6 +17,14 @@ export default function Contact() {
     {
       question: 'How long until I receive my photos?',
       answer: 'Typically, you\'ll receive your edited gallery within 2 weeks for portrait sessions and 3-4 weeks for events. Rush delivery is available for an additional fee if you need your images sooner.'
+    },
+    {
+      question: 'Do you travel for sessions?',
+      answer: 'Yes! I\'m available for travel within the Bay Area at no additional charge. For destinations outside the area, travel fees may apply. Contact me for a custom quote.'
+    },
+    {
+      question: 'What is your cancellation policy?',
+      answer: 'Life happens! Sessions can be rescheduled with at least 48 hours notice. Deposits are non-refundable but can be applied to a rescheduled session within 6 months.'
     }
   ];
   
@@ -60,6 +36,9 @@ export default function Contact() {
           <h1 className="text-4xl md:text-5xl font-bold text-primary-charcoal text-center">
             GET IN TOUCH
           </h1>
+          <p className="text-center text-primary-charcoal mt-4 max-w-2xl mx-auto">
+            Ready to capture your moments? I'd love to hear about your project and discuss how we can work together.
+          </p>
         </div>
       </div>
       
@@ -72,12 +51,20 @@ export default function Contact() {
               <div className="space-y-4 mb-8">
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Email</h3>
-                  <p className="text-primary-charcoal">info@tonalfocus.com</p>
+                  <p className="text-primary-charcoal">
+                    <a href="mailto:info@tonalfocus.com" className="hover:text-primary-teal transition-colors">
+                      info@tonalfocus.com
+                    </a>
+                  </p>
                 </div>
                 
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Phone</h3>
-                  <p className="text-primary-charcoal">+1 (555) 123-4567</p>
+                  <p className="text-primary-charcoal">
+                    <a href="tel:+15551234567" className="hover:text-primary-teal transition-colors">
+                      +1 (555) 123-4567
+                    </a>
+                  </p>
                 </div>
                 
                 <div>
@@ -91,74 +78,18 @@ export default function Contact() {
               
               <h3 className="font-medium text-primary-charcoal mb-2">Office Hours</h3>
               <p className="text-primary-charcoal mb-1">Monday - Friday: 9am - 6pm</p>
-              <p className="text-primary-charcoal">Saturday: 10am - 4pm (by appointment)</p>
+              <p className="text-primary-charcoal mb-4">Saturday: 10am - 4pm (by appointment)</p>
+              
+              <h3 className="font-medium text-primary-charcoal mb-2">Response Time</h3>
+              <p className="text-primary-charcoal">
+                I typically respond to all inquiries within 24-48 hours. For urgent matters, 
+                please call during office hours.
+              </p>
             </Card>
             
             {/* Contact form */}
             <Card variant="teal" withGrain={true} title="SEND A MESSAGE">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-white mb-1">Name</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Your name"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="email" className="block text-white mb-1">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Your email"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="subject" className="block text-white mb-1">Subject</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Subject"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-white mb-1">Message</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Your message"
-                    required
-                  ></textarea>
-                </div>
-                
-                <div className="text-center pt-2">
-                  <Button variant="tertiary" type="submit">
-                    SEND MESSAGE
-                  </Button>
-                </div>
-              </form>
+              <ContactForm />
             </Card>
           </div>
         </div>
@@ -178,6 +109,31 @@ export default function Contact() {
                 <p className="text-primary-charcoal">{faq.answer}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Call to action */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-medium mb-4 text-primary-charcoal">
+            Prefer Social Media?
+          </h2>
+          <p className="text-primary-charcoal mb-6">
+            You can also reach out to me on Instagram where I share my latest work and behind-the-scenes content.
+          </p>
+          <div className="flex justify-center gap-4">
+            <a 
+              href="https://instagram.com/tonalfocus" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-teal text-white hover:bg-primary-teal/90 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+              </svg>
+              FOLLOW ON INSTAGRAM
+            </a>
           </div>
         </div>
       </section>
