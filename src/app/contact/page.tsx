@@ -78,8 +78,8 @@ export default function Contact() {
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Email</h3>
                   <p className="text-primary-charcoal">
-                    <a href="mailto:info@tonalfocus.com" className="hover:text-primary-teal transition-colors">
-                      info@tonalfocus.com
+                    <a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@tonalfocus.com'}`} className="hover:text-primary-teal transition-colors">
+                      {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@tonalfocus.com'}
                     </a>
                   </p>
                 </div>
@@ -87,8 +87,8 @@ export default function Contact() {
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Phone</h3>
                   <p className="text-primary-charcoal">
-                    <a href="tel:+15551234567" className="hover:text-primary-teal transition-colors">
-                      +1 (555) 123-4567
+                    <a href={`tel:${(process.env.NEXT_PUBLIC_CONTACT_PHONE || '+1 (555) 123-4567').replace(/[^0-9+]/g, '')}`} className="hover:text-primary-teal transition-colors">
+                      {process.env.NEXT_PUBLIC_CONTACT_PHONE || '+1 (555) 123-4567'}
                     </a>
                   </p>
                 </div>

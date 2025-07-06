@@ -10,6 +10,10 @@ declare global {
       RESEND_API_KEY?: string;
       CONTACT_EMAIL?: string;
       
+      // Contact Information (Public)
+      NEXT_PUBLIC_CONTACT_EMAIL?: string;
+      NEXT_PUBLIC_CONTACT_PHONE?: string;
+      
       // Authentication
       NEXTAUTH_URL?: string;
       NEXTAUTH_SECRET?: string;
