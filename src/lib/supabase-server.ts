@@ -9,7 +9,8 @@
  * This client can be configured to use either the public anonymous key or, preferably
  * for privileged operations, the Supabase service role key.
  */
-import { createServerClient, type CookieOptions, SupabaseClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { SupabaseClient } from '@supabase/supabase-js' // Corrected import for SupabaseClient
 import { cookies } from 'next/headers' // Next.js utility for accessing cookies in Server Components/Routes.
 
 /**
