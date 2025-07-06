@@ -25,6 +25,7 @@ export interface Photo {
   thumbnail_url: string;     // Thumbnail public URL
   display_order: number;
   is_featured: boolean;
+  is_black_white: boolean;   // Track if photo is black & white
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -51,6 +52,7 @@ export interface CreatePhotoInput {
   thumbnail_url: string;
   display_order?: number;
   is_featured?: boolean;
+  is_black_white?: boolean;
   metadata?: Record<string, any>;
 }
 
@@ -60,5 +62,6 @@ export interface UpdatePhotoInput {
   category_id?: string;
   display_order?: number;
   is_featured?: boolean;
+  is_black_white?: boolean;
   metadata?: Record<string, any>;
 }
