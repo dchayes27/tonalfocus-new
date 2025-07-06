@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
-interface GalleryImage {
+export interface GalleryImage { // Added export
   src: string;
   alt: string;
   category?: string;
 }
 
-interface GalleryProps {
+export interface GalleryProps { // Added export for consistency, though not strictly needed for this fix
   images: GalleryImage[];
   columns?: 2 | 3 | 4;
   gap?: 'none' | 'small' | 'medium' | 'large';

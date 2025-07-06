@@ -1,11 +1,33 @@
-'use client';
+/**
+ * src/app/contact/page.tsx
+ * ------------------------
+ * This file defines the Contact page for TonalFocus Photography.
+ * It includes a contact form, contact information, and a list of frequently asked questions (FAQs).
+ * This component is marked as a Client Component ('use client') because it uses the ContactForm
+ * component which manages form state.
+ *
+ * Metadata for this page (title, description) is typically handled in a separate metadata.ts file
+ * or a parent layout/page that is a Server Component.
+ */
+'use client'; // Directive to mark this as a Client Component.
 
-import Card from '@/components/ui/Card';
-import ContactForm from '@/components/forms/ContactForm';
+import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
+import ContactForm from '@/components/forms/ContactForm'; // Enhanced contact form with validation and email integration.
 
+// Interface for the structure of FAQ items.
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Contact Page Component.
+ * Renders the content for the "/contact" route, including a contact form and FAQs.
+ * @returns {JSX.Element} The JSX for the Contact page.
+ */
 export default function Contact() {
-  // Common questions
-  const faqs = [
+  // Array of frequently asked questions and their answers.
+  const faqs: FAQItem[] = [
     {
       question: 'How far in advance should I book a session?',
       answer: 'For portrait sessions, 2-3 weeks in advance is recommended. For events and weddings, 2-6 months is ideal to ensure availability, especially during peak seasons.'
@@ -30,7 +52,8 @@ export default function Contact() {
   
   return (
     <>
-      {/* Page header */}
+      {/* Page Header Section */}
+      {/* Displays the main title of the Contact page. */}
       <div className="bg-primary-beige py-12 md:py-20">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold text-primary-charcoal text-center">
@@ -42,13 +65,16 @@ export default function Contact() {
         </div>
       </div>
       
-      {/* Contact section */}
+      {/* Main Contact Section */}
+      {/* Contains contact information and the contact form, laid out in a grid. */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Contact info */}
+
+            {/* Contact Information Card */}
             <Card variant="white" withGrain={true} title="CONTACT INFORMATION">
               <div className="space-y-4 mb-8">
+                {/* Email Address */}
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Email</h3>
                   <p className="text-primary-charcoal">
@@ -57,7 +83,7 @@ export default function Contact() {
                     </a>
                   </p>
                 </div>
-                
+                {/* Phone Number */}
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Phone</h3>
                   <p className="text-primary-charcoal">
@@ -66,7 +92,7 @@ export default function Contact() {
                     </a>
                   </p>
                 </div>
-                
+                {/* Studio Location / Address */}
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Studio Location</h3>
                   <p className="text-primary-charcoal">
@@ -75,7 +101,7 @@ export default function Contact() {
                   </p>
                 </div>
               </div>
-              
+              {/* Office Hours */}
               <h3 className="font-medium text-primary-charcoal mb-2">Office Hours</h3>
               <p className="text-primary-charcoal mb-1">Monday - Friday: 9am - 6pm</p>
               <p className="text-primary-charcoal mb-4">Saturday: 10am - 4pm (by appointment)</p>
@@ -87,7 +113,8 @@ export default function Contact() {
               </p>
             </Card>
             
-            {/* Contact form */}
+            {/* Contact Form Card */}
+            {/* Uses the enhanced ContactForm component with email integration, validation, and spam protection */}
             <Card variant="teal" withGrain={true} title="SEND A MESSAGE">
               <ContactForm />
             </Card>
@@ -95,15 +122,17 @@ export default function Contact() {
         </div>
       </section>
       
-      {/* FAQ section */}
+      {/* FAQ Section */}
+      {/* Displays a list of frequently asked questions and their answers. */}
       <section className="bg-primary-beige py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-medium mb-10 text-center text-primary-charcoal">
             FREQUENTLY ASKED QUESTIONS
           </h2>
-          
+          {/* Container for FAQ items. */}
           <div className="max-w-3xl mx-auto space-y-6">
             {faqs.map((faq, index) => (
+              // Each FAQ item maintains the 90s aesthetic without rounded corners
               <div key={index} className="p-6 bg-white">
                 <h3 className="text-lg font-medium mb-2 text-primary-teal">{faq.question}</h3>
                 <p className="text-primary-charcoal">{faq.answer}</p>
