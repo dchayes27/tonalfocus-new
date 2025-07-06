@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     
     // Retrieve and parse query parameters for filtering and pagination.
-    const category = searchParams.get('category'); // Category slug (e.g., 'portraits', 'landscapes').
-    const limit = parseInt(searchParams.get('limit') || '20', 10); // Number of photos per page, default 20.
+    const view = searchParams.get('view'); // 'all', 'color', 'bw'
+    const limit = parseInt(searchParams.get('limit') || '50', 10); // Number of photos per page, default 50.
     const offset = parseInt(searchParams.get('offset') || '0', 10); // Starting index for pagination, default 0.
     const featured = searchParams.get('featured') === 'true'; // Boolean flag to filter featured photos.
 
@@ -38,31 +38,17 @@ export async function GET(request: NextRequest) {
         category:categories(*)
       `)
       // Select all columns from 'photos' and join related data from 'categories' table.
-      // 'category:categories(*)' fetches all columns from the related 'categories' record
-      // and nests it under a 'category' key in each photo object.
-      // This assumes a foreign key relationship is set up in Supabase (e.g., photos.category_id references categories.id).
-      .order('display_order', { ascending: true }) // Order photos by their display_order.
-      .range(offset, offset + limit - 1); // Apply pagination using range (offset to offset + limit - 1).
+      .order('is_black_white', { ascending: false }) // Group B&W photos first
+      .order('display_order', { ascending: true }) // Then order by display_order
+      .range(offset, offset + limit - 1); // Apply pagination using range.
 
-    // Apply category filter if a category slug is provided.
-    if (category) {
-      // First, fetch the category ID corresponding to the provided slug.
-      const { data: categoryData, error: categoryError } = await supabase
-        .from('categories')
-        .select('id') // Select only the ID.
-        .eq('slug', category) // Filter by the slug.
-        .single(); // Expect a single category record.
-      
-      // If there was an error fetching the category or no category was found, log it (optional: could also return an error).
-      if (categoryError || !categoryData) {
-        console.error(`Category with slug '${category}' not found or error fetching:`, categoryError);
-        // Depending on requirements, you might want to return an empty set or an error here.
-        // For now, it will proceed without the category filter if not found.
-      } else if (categoryData) {
-        // If category ID is found, add a filter to the main photos query.
-        query = query.eq('category_id', categoryData.id);
-      }
+    // Apply view filter for B&W vs Color
+    if (view === 'bw') {
+      query = query.eq('is_black_white', true);
+    } else if (view === 'color') {
+      query = query.eq('is_black_white', false);
     }
+    // 'all' view doesn't need filtering, shows both
     
     // Apply featured filter if the 'featured' query parameter is true.
     if (featured) {
@@ -81,15 +67,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Return the fetched photos and pagination details.
-    return NextResponse.json({ 
-      photos: data || [], // Default to an empty array if no data is returned.
-      pagination: {
-        limit,
-        offset,
-        hasMore: data ? data.length === limit : false // Indicates if there might be more photos to fetch.
-      }
-    });
+    // Group photos by B&W vs Color for the 'all' view
+    let response;
+    if (view === 'all' || !view) {
+      const blackWhitePhotos = data?.filter(photo => photo.is_black_white) || [];
+      const colorPhotos = data?.filter(photo => !photo.is_black_white) || [];
+      
+      response = {
+        photos: data || [],
+        grouped: {
+          blackWhite: blackWhitePhotos,
+          color: colorPhotos
+        },
+        pagination: {
+          limit,
+          offset,
+          hasMore: data ? data.length === limit : false
+        }
+      };
+    } else {
+      response = {
+        photos: data || [],
+        pagination: {
+          limit,
+          offset,
+          hasMore: data ? data.length === limit : false
+        }
+      };
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     // Catch any unexpected errors during the process.
     console.error('Unexpected error in GET /api/photos:', error);
