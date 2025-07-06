@@ -3,25 +3,16 @@
  * ------------------------
  * This file defines the Contact page for TonalFocus Photography.
  * It includes a contact form, contact information, and a list of frequently asked questions (FAQs).
- * This component is marked as a Client Component ('use client') because it uses React's useState hook
- * for managing form input state.
+ * This component is marked as a Client Component ('use client') because it uses the ContactForm
+ * component which manages form state.
  *
  * Metadata for this page (title, description) is typically handled in a separate metadata.ts file
  * or a parent layout/page that is a Server Component.
  */
 'use client'; // Directive to mark this as a Client Component.
 
-import { useState, ChangeEvent, FormEvent } from 'react'; // React hooks for state and event handling.
 import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
-import Button from '@/components/ui/Button'; // Reusable UI button component.
-
-// Interface for the structure of form data.
-interface FormData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
+import ContactForm from '@/components/forms/ContactForm'; // Enhanced contact form with validation and email integration.
 
 // Interface for the structure of FAQ items.
 interface FAQItem {
@@ -35,51 +26,6 @@ interface FAQItem {
  * @returns {JSX.Element} The JSX for the Contact page.
  */
 export default function Contact() {
-  // State for managing the contact form data.
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  
-  /**
-   * Handles changes to form input fields.
-   * Updates the corresponding field in the formData state.
-   * @param {ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The input change event.
-   */
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  /**
-   * Handles the submission of the contact form.
-   * Currently, it prevents default submission, logs data to console, shows an alert,
-   * and resets the form.
-   * In a real application, this function would send the data to a backend API endpoint.
-   * @param {FormEvent} e - The form submission event.
-   */
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault(); // Prevent default form submission behavior.
-    console.log('Form submitted:', formData); // Log form data (for debugging).
-
-    // TODO: Replace alert with actual API call to submit form data.
-    // Example: fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) });
-    alert('Thank you for your message! I\'ll be in touch soon.');
-
-    // Reset form fields after submission.
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
-  };
-  
   // Array of frequently asked questions and their answers.
   const faqs: FAQItem[] = [
     {
@@ -93,6 +39,14 @@ export default function Contact() {
     {
       question: 'How long until I receive my photos?',
       answer: 'Typically, you\'ll receive your edited gallery within 2 weeks for portrait sessions and 3-4 weeks for events. Rush delivery is available for an additional fee if you need your images sooner.'
+    },
+    {
+      question: 'Do you travel for sessions?',
+      answer: 'Yes! I\'m available for travel within the Bay Area at no additional charge. For destinations outside the area, travel fees may apply. Contact me for a custom quote.'
+    },
+    {
+      question: 'What is your cancellation policy?',
+      answer: 'Life happens! Sessions can be rescheduled with at least 48 hours notice. Deposits are non-refundable but can be applied to a rescheduled session within 6 months.'
     }
   ];
   
@@ -105,6 +59,9 @@ export default function Contact() {
           <h1 className="text-4xl md:text-5xl font-bold text-primary-charcoal text-center">
             GET IN TOUCH
           </h1>
+          <p className="text-center text-primary-charcoal mt-4 max-w-2xl mx-auto">
+            Ready to capture your moments? I'd love to hear about your project and discuss how we can work together.
+          </p>
         </div>
       </div>
       
@@ -120,12 +77,20 @@ export default function Contact() {
                 {/* Email Address */}
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Email</h3>
-                  <p className="text-primary-charcoal">info@tonalfocus.com</p>
+                  <p className="text-primary-charcoal">
+                    <a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@tonalfocus.com'}`} className="hover:text-primary-teal transition-colors">
+                      {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@tonalfocus.com'}
+                    </a>
+                  </p>
                 </div>
                 {/* Phone Number */}
                 <div>
                   <h3 className="font-medium text-primary-charcoal">Phone</h3>
-                  <p className="text-primary-charcoal">+1 (555) 123-4567</p>
+                  <p className="text-primary-charcoal">
+                    <a href={`tel:${(process.env.NEXT_PUBLIC_CONTACT_PHONE || '+1 (555) 123-4567').replace(/[^0-9+]/g, '')}`} className="hover:text-primary-teal transition-colors">
+                      {process.env.NEXT_PUBLIC_CONTACT_PHONE || '+1 (555) 123-4567'}
+                    </a>
+                  </p>
                 </div>
                 {/* Studio Location / Address */}
                 <div>
@@ -139,75 +104,19 @@ export default function Contact() {
               {/* Office Hours */}
               <h3 className="font-medium text-primary-charcoal mb-2">Office Hours</h3>
               <p className="text-primary-charcoal mb-1">Monday - Friday: 9am - 6pm</p>
-              <p className="text-primary-charcoal">Saturday: 10am - 4pm (by appointment)</p>
+              <p className="text-primary-charcoal mb-4">Saturday: 10am - 4pm (by appointment)</p>
+              
+              <h3 className="font-medium text-primary-charcoal mb-2">Response Time</h3>
+              <p className="text-primary-charcoal">
+                I typically respond to all inquiries within 24-48 hours. For urgent matters, 
+                please call during office hours.
+              </p>
             </Card>
             
             {/* Contact Form Card */}
+            {/* Uses the enhanced ContactForm component with email integration, validation, and spam protection */}
             <Card variant="teal" withGrain={true} title="SEND A MESSAGE">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name Input Field */}
-                <div>
-                  <label htmlFor="name" className="block text-white mb-1">Name</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name" // Must match key in FormData state.
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Your name"
-                    required
-                  />
-                </div>
-                {/* Email Input Field */}
-                <div>
-                  <label htmlFor="email" className="block text-white mb-1">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email" // Must match key in FormData state.
-                    value={formData.email} // Corrected from formData.name
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Your email"
-                    required
-                  />
-                </div>
-                {/* Subject Input Field */}
-                <div>
-                  <label htmlFor="subject" className="block text-white mb-1">Subject</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject" // Must match key in FormData state.
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Subject"
-                    required
-                  />
-                </div>
-                {/* Message Textarea Field */}
-                <div>
-                  <label htmlFor="message" className="block text-white mb-1">Message</label>
-                  <textarea
-                    id="message"
-                    name="message" // Must match key in FormData state.
-                    rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white text-primary-charcoal"
-                    placeholder="Your message"
-                    required
-                  ></textarea>
-                </div>
-                {/* Submit Button */}
-                <div className="text-center pt-2">
-                  <Button variant="tertiary" type="submit">
-                    SEND MESSAGE
-                  </Button>
-                </div>
-              </form>
+              <ContactForm />
             </Card>
           </div>
         </div>
@@ -223,12 +132,37 @@ export default function Contact() {
           {/* Container for FAQ items. */}
           <div className="max-w-3xl mx-auto space-y-6">
             {faqs.map((faq, index) => (
-              // Each FAQ item.
-              <div key={index} className="p-6 bg-white shadow-md rounded-md">
+              // Each FAQ item maintains the 90s aesthetic without rounded corners
+              <div key={index} className="p-6 bg-white">
                 <h3 className="text-lg font-medium mb-2 text-primary-teal">{faq.question}</h3>
-                <p className="text-primary-charcoal leading-relaxed">{faq.answer}</p>
+                <p className="text-primary-charcoal">{faq.answer}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Call to action */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-medium mb-4 text-primary-charcoal">
+            Prefer Social Media?
+          </h2>
+          <p className="text-primary-charcoal mb-6">
+            You can also reach out to me on Instagram where I share my latest work and behind-the-scenes content.
+          </p>
+          <div className="flex justify-center gap-4">
+            <a 
+              href="https://instagram.com/tonalfocus" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-teal text-white hover:bg-primary-teal/90 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+              </svg>
+              FOLLOW ON INSTAGRAM
+            </a>
           </div>
         </div>
       </section>

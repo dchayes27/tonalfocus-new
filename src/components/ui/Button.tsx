@@ -12,6 +12,7 @@ interface ButtonProps {
   className?: string;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
 const Button = ({
@@ -20,7 +21,8 @@ const Button = ({
   variant = 'primary',
   className = '',
   onClick,
-  type = 'button'
+  type = 'button',
+  disabled = false
 }: ButtonProps) => {
   // Define styles for different variants
   const variantStyles = {
@@ -31,12 +33,18 @@ const Button = ({
   };
   
   const baseStyles = "retro-button transition-colors duration-300";
-  const styles = `${baseStyles} ${variantStyles[variant]} ${className}`;
+  const disabledStyles = disabled ? "opacity-50 cursor-not-allowed" : "";
+  const styles = `${baseStyles} ${variantStyles[variant]} ${disabledStyles} ${className}`;
   
   // If href is provided, render a Link component
   if (href) {
     return (
-      <Link href={href} className={styles}>
+      <Link 
+        href={disabled ? '#' : href} 
+        className={styles}
+        onClick={disabled ? (e) => e.preventDefault() : undefined}
+        aria-disabled={disabled}
+      >
         {children}
       </Link>
     );
@@ -44,7 +52,12 @@ const Button = ({
   
   // Otherwise, render a button
   return (
-    <button className={styles} onClick={onClick} type={type}>
+    <button 
+      className={styles} 
+      onClick={onClick} 
+      type={type}
+      disabled={disabled}
+    >
       {children}
     </button>
   );
