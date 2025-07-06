@@ -11,7 +11,8 @@
  * It relies on environment variables prefixed with `NEXT_PUBLIC_` to be accessible
  * in the browser.
  */
-import { createBrowserClient, SupabaseClient } from '@supabase/ssr'
+import { createBrowserClient } from '@supabase/ssr';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Creates and returns a Supabase client instance for use in browser environments.
