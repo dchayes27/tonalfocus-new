@@ -74,3 +74,31 @@ body {
   z-index: 10; /* Ensures the grain is above the element's content but can be layered. */
   mix-blend-mode: multiply; /* Blends the grain texture with the element's background. */
 }
+
+/*
+  Filmstrip Banner Styles
+  - Custom styles for the horizontal scrolling filmstrip effect
+  - Includes film perforation styling and smooth animations
+*/
+.filmstrip-container {
+  scroll-behavior: smooth;
+}
+
+/* Film perforation holes for authentic film look */
+.film-perforation {
+  background: var(--color-beige);
+  border-radius: 2px;
+}
+
+/* Smooth transform animations for the filmstrip */
+.filmstrip-scroll {
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
+/* Disable smooth scrolling on mobile for better performance */
+@media (max-width: 768px) {
+  .filmstrip-container {
+    scroll-behavior: auto;
+  }
+}

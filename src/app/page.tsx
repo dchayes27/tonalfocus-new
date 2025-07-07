@@ -2,23 +2,22 @@
  * src/app/page.tsx
  * ----------------
  * This is the main page component for the application's homepage (route: "/").
- * It showcases a hero section, a featured gallery, and introductory sections
+ * It showcases a filmstrip banner hero section, a featured gallery, and introductory sections
  * for "About Me" and "Get in Touch", utilizing various UI components.
  *
  * As a Server Component by default in Next.js App Router, it can directly fetch data
  * or define metadata if needed (though metadata is often in layout or dedicated files).
  */
 
-import Hero from '@/components/Hero'; // Component for the main hero section.
+import FilmstripBannerWrapper from '@/components/home/FilmstripBannerWrapper'; // New filmstrip banner component
 import Gallery from '@/components/Gallery'; // Component for displaying a collection of images.
 import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
 import Button from '@/components/ui/Button'; // Reusable UI button component.
 import Image from 'next/image'; // Next.js component for optimized image rendering.
-import ScrollArrow from '@/components/ui/ScrollArrow'; // Component for a scroll-to-section arrow.
 
 /**
  * Home page component.
- * Renders the main landing page of the website.
+ * Renders the main landing page of the website with a horizontal scrolling filmstrip banner.
  * @returns {JSX.Element} The JSX for the homepage.
  */
 export default function Home() {
@@ -49,17 +48,8 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero Section: Displays a large introductory image or visual. */}
-      <div className="flex flex-col">
-        <Hero
-          imageSrc="/images/hero.jpg" // Source path for the hero image.
-          imageAlt="Featured photography" // Alt text for the hero image.
-          height="large" // Specifies the height variant of the hero section.
-          overlay={false} // Determines if an overlay is applied to the hero image.
-        />
-        {/* ScrollArrow component to guide users to the next section. */}
-        <ScrollArrow targetId="gallery-section" />
-      </div>
+      {/* Filmstrip Banner Section: Interactive horizontal scrolling hero */}
+      <FilmstripBannerWrapper />
       
       {/* Gallery Section: Showcases featured work. */}
       <section id="gallery-section" className="py-24 container mx-auto px-4 bg-secondary-offWhite">
