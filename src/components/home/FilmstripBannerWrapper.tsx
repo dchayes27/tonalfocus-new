@@ -1,8 +1,8 @@
 import FilmstripBanner from './FilmstripBanner';
-import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@/lib/supabase-server';
 
 export default async function FilmstripBannerWrapper() {
-  const supabase = createServerClient();
+  const supabase = createClient();
 
   // Fetch featured photos for the filmstrip
   const { data: photos } = await supabase

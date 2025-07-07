@@ -116,7 +116,7 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
                 {/* Photo */}
                 <div className="absolute inset-0 flex items-center justify-center bg-primary-charcoal p-8">
                   <Image
-                    src={photo.cloudinary_url || photo.thumbnail_url || '/placeholder.jpg'}
+                    src={photo.public_url || photo.thumbnail_url || '/placeholder.jpg'}
                     alt={photo.title}
                     width={600}
                     height={600}
