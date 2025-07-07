@@ -16,10 +16,11 @@
 import { Inter, Space_Mono, Playfair_Display } from 'next/font/google';
 import './globals.css'; // Imports global stylesheets.
 import Link from 'next/link'; // Next.js component for client-side navigation.
-// import Image from 'next/image'; // Next.js component for optimized images (not directly used in this file but available).
+import Image from 'next/image'; // Next.js component for optimized images.
 import Logo from '@/components/ui/logo'; // Custom Logo component.
 import { useState } from 'react'; // React hook for managing component state.
 import InstagramIcon from '@/components/ui/icons/InstagramIcon'; // Custom Instagram icon component.
+import { Toaster } from 'sonner'; // Toast notifications for admin interface
 
 // Font configurations using next/font/google for optimized web font loading.
 // These fonts are loaded and made available via CSS variables.
@@ -169,6 +170,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        <Toaster position="bottom-right" theme="dark" />
       </body>
     </html>
   );

@@ -1,13 +1,14 @@
 import { createClient } from './supabase-client';
 import { createClient as createServerClient } from './supabase-server';
 import { CreatePhotoInput } from './types';
+import exifr from 'exifr';
 
 // Storage bucket names
 export const PHOTOS_BUCKET = 'photos';
 export const THUMBNAILS_BUCKET = 'thumbnails';
 
-// Maximum file size (10MB)
-export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+// Maximum file size (50MB to match Supabase free tier limit)
+export const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 // Allowed image types
 export const ALLOWED_IMAGE_TYPES = [
@@ -20,6 +21,52 @@ export const ALLOWED_IMAGE_TYPES = [
 interface ImageDimensions {
   width: number;
   height: number;
+}
+
+interface ExifData {
+  camera?: string;
+  lens?: string;
+  focalLength?: number;
+  aperture?: number;
+  shutterSpeed?: string;
+  iso?: number;
+  dateTime?: string;
+  latitude?: number;
+  longitude?: number;
+  [key: string]: any;
+}
+
+/**
+ * Extract EXIF data from image file
+ */
+export async function extractExifData(file: File): Promise<ExifData | null> {
+  try {
+    const exif = await exifr.parse(file, {
+      // Pick specific tags we're interested in
+      pick: [
+        'Make', 'Model', 'LensModel', 'FocalLength', 'FNumber', 
+        'ExposureTime', 'ISO', 'DateTimeOriginal', 'latitude', 'longitude'
+      ]
+    });
+    
+    if (!exif) return null;
+    
+    return {
+      camera: exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : undefined,
+      lens: exif.LensModel,
+      focalLength: exif.FocalLength,
+      aperture: exif.FNumber,
+      shutterSpeed: exif.ExposureTime ? `1/${Math.round(1/exif.ExposureTime)}` : undefined,
+      iso: exif.ISO,
+      dateTime: exif.DateTimeOriginal,
+      latitude: exif.latitude,
+      longitude: exif.longitude,
+      ...exif
+    };
+  } catch (error) {
+    console.error('Failed to extract EXIF data:', error);
+    return null;
+  }
 }
 
 /**
@@ -78,19 +125,32 @@ export async function uploadImage(
   
   // Validate file size
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error('File size exceeds 10MB limit.');
+    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+    const maxMB = (MAX_FILE_SIZE / 1024 / 1024).toFixed(0);
+    throw new Error(`File size (${sizeMB}MB) exceeds ${maxMB}MB limit.`);
   }
   
   // Generate unique filename
   const filename = generateStorageFilename(file.name);
   const path = `${new Date().getFullYear()}/${filename}`;
   
-  // Upload to Supabase Storage
+  // Upload to Supabase Storage with chunking for large files
   const { error } = await supabase.storage
     .from(bucket)
-    .upload(path, file);
+    .upload(path, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
     
   if (error) {
+    console.error('Supabase storage error:', error);
+    
+    // Provide more specific error messages
+    if (error.message.includes('exceeded the maximum allowed size')) {
+      const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+      throw new Error(`File too large (${sizeMB}MB). Your Supabase plan may have a lower limit than expected. Try a smaller file.`);
+    }
+    
     throw new Error(`Upload failed: ${error.message}`);
   }
   

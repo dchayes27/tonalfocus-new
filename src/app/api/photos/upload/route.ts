@@ -15,6 +15,7 @@ import {
   uploadImage,          // Helper function to upload an image to storage.
   createThumbnail,      // Helper function to generate and upload a thumbnail.
   getImageDimensions,   // Helper function to get image dimensions.
+  extractExifData,      // Helper function to extract EXIF metadata.
   ALLOWED_IMAGE_TYPES,  // Constant array of allowed image MIME types.
   MAX_FILE_SIZE,        // Constant for maximum allowed file size.
   PHOTOS_BUCKET         // Constant for the name of the Supabase Storage bucket for photos.
@@ -46,6 +47,11 @@ export async function POST(request: NextRequest) {
     const description = formData.get('description') as string | null; // Optional description.
     const categoryId = formData.get('category_id') as string | null; // Optional category ID.
     const isFeatured = formData.get('is_featured') === 'true'; // Boolean flag for featured status.
+    const isColor = formData.get('is_color') !== 'false'; // Default to true for color photos.
+    
+    // Convert empty strings to null for database fields
+    const cleanDescription = description?.trim() || null;
+    const cleanCategoryId = categoryId?.trim() || null;
 
     // --- Input Validation ---
     // Validate that essential fields (file and title) are provided.
@@ -76,19 +82,24 @@ export async function POST(request: NextRequest) {
     // Get the dimensions (width and height) of the uploaded image.
     const dimensions = await getImageDimensions(file);
     
+    // Extract EXIF data
+    const exifData = await extractExifData(file);
+    
     // Upload the main image file to Supabase Storage.
     // `randomizeFilename: true` helps prevent filename collisions.
     const { path: storagePath, publicUrl } = await uploadImage(file, PHOTOS_BUCKET, true);
+    console.log('Main image uploaded successfully:', { storagePath, publicUrl });
     
     // Create a thumbnail from the image file and upload it.
     const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnail(file, true);
+    console.log('Thumbnail created successfully:', { thumbnailPath, thumbnailUrl });
     
     // --- Database Interaction ---
     // Prepare data for insertion into the 'photos' table.
     const photoDataToInsert = {
       title,
-      description,
-      category_id: categoryId ? parseInt(categoryId, 10) : null, // Ensure categoryId is number or null
+      description: cleanDescription,    // Use cleaned description (null instead of empty string)
+      category_id: cleanCategoryId,     // Use cleaned category ID (null instead of empty string)
       filename: file.name,
       file_size: file.size,
       width: dimensions.width,
@@ -98,10 +109,14 @@ export async function POST(request: NextRequest) {
       thumbnail_path: thumbnailPath,    // Path in Supabase Storage for the thumbnail.
       thumbnail_url: thumbnailUrl,      // Publicly accessible URL for the thumbnail.
       is_featured: isFeatured,
-      metadata: { // Store additional metadata as a JSON object.
+      is_color: isColor,                // Track if photo is color or B&W
+      display_order: 999,               // Default to end of list
+      metadata: {                       // Store additional metadata as a JSON object.
         originalName: file.name,
         mimeType: file.type,
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
+        exif: exifData || {},           // Include EXIF data
+        isColor: isColor
       }
     };
 
@@ -109,7 +124,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('photos')
       .insert(photoDataToInsert)
-      .select() // Select the newly inserted record.
+      .select()  // Select the newly inserted record.
       .single(); // Expect a single record to be returned.
       
     // Handle potential errors during database insertion.
