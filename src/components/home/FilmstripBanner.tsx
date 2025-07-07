@@ -26,8 +26,8 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
   }, []);
 
   useEffect(() => {
-    // Only run horizontal scroll logic on desktop
-    if (isMobile || !scrollContainerRef.current || !filmstripRef.current) return;
+    // Only run horizontal scroll logic on desktop and when we have photos
+    if (isMobile || !scrollContainerRef.current || !filmstripRef.current || photos.length === 0) return;
 
     const scrollContainer = scrollContainerRef.current;
     const filmstrip = filmstripRef.current;
@@ -62,7 +62,31 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isMobile]);
+  }, [isMobile, photos.length]);
+
+  // If no photos, show a placeholder
+  if (photos.length === 0) {
+    return (
+      <div className="h-screen flex flex-col justify-center items-center bg-primary-beige">
+        <div className="text-center p-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary-charcoal retro-font mb-4">
+            TONAL FOCUS
+          </h1>
+          <p className="text-lg md:text-xl text-primary-mauve mb-8">
+            Film Photography | B&W | Color
+          </p>
+          <div className="max-w-2xl mx-auto">
+            <p className="text-primary-charcoal mb-4">
+              Welcome to Tonal Focus Photography. Portfolio images coming soon.
+            </p>
+            <p className="text-primary-charcoal text-sm">
+              Check back shortly as we prepare to showcase our finest work.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -116,7 +140,7 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
                 {/* Photo */}
                 <div className="absolute inset-0 flex items-center justify-center bg-primary-charcoal p-8">
                   <Image
-                    src={photo.public_url || photo.thumbnail_url || '/placeholder.jpg'}
+                    src={photo.public_url || photo.thumbnail_url || '/images/gallery1.jpg'}
                     alt={photo.title}
                     width={600}
                     height={600}

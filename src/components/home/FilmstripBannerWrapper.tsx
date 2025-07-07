@@ -2,24 +2,43 @@ import FilmstripBanner from './FilmstripBanner';
 import { createClient } from '@/lib/supabase-server';
 
 export default async function FilmstripBannerWrapper() {
-  const supabase = createClient();
+  try {
+    const supabase = createClient();
 
-  // Fetch featured photos for the filmstrip
-  const { data: photos } = await supabase
-    .from('photos')
-    .select('*')
-    .eq('is_featured', true)
-    .order('display_order', { ascending: true })
-    .limit(6);
+    // Fetch featured photos for the filmstrip
+    const { data: photos, error } = await supabase
+      .from('photos')
+      .select('*')
+      .eq('is_featured', true)
+      .order('display_order', { ascending: true })
+      .limit(6);
 
-  // If no featured photos, get the latest 6 photos
-  const displayPhotos = photos && photos.length > 0 
-    ? photos 
-    : (await supabase
+    if (error) {
+      console.error('Error fetching featured photos:', error);
+      // Return empty array to show placeholder
+      return <FilmstripBanner photos={[]} />;
+    }
+
+    // If no featured photos, try to get the latest 6 photos
+    if (!photos || photos.length === 0) {
+      const { data: latestPhotos, error: latestError } = await supabase
         .from('photos')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(6)).data || [];
+        .limit(6);
 
-  return <FilmstripBanner photos={displayPhotos} />;
+      if (latestError) {
+        console.error('Error fetching latest photos:', latestError);
+        return <FilmstripBanner photos={[]} />;
+      }
+
+      return <FilmstripBanner photos={latestPhotos || []} />;
+    }
+
+    return <FilmstripBanner photos={photos} />;
+  } catch (error) {
+    console.error('Error in FilmstripBannerWrapper:', error);
+    // Return empty array on any error
+    return <FilmstripBanner photos={[]} />;
+  }
 }
