@@ -2,10 +2,10 @@
 
 ## Current Sprint (January 2025)
 
-### Active Branch: `fix/portfolio-server-component`
+### Active Branch: `main` (merged from `fix/portfolio-server-component`)
 **Issue:** #1 - Fix portfolio page infinite loading
 **Started:** January 27, 2025
-**Status:** IN PROGRESS
+**Status:** ✅ COMPLETED - January 27, 2025
 
 ---
 
@@ -20,7 +20,12 @@
 - ✅ Fixed TypeScript types (is_black_white)
 - ✅ Created env checking script
 - Build successful locally
-- Next: Push to GitHub and test in production
+- ✅ Pushed to GitHub and created PR #10
+- ✅ Added missing SUPABASE_SERVICE_ROLE_KEY to Vercel
+- ✅ Fixed static generation with public Supabase client
+- ✅ Merged PR - Build successful in production
+- ✅ Portfolio page working at https://tonalfocus-new.vercel.app
+- Next: Connect custom domain (tonalfocus.com) to new deployment
 
 ---
 
@@ -75,13 +80,13 @@ npm run lint
 ## Environment Variables Checklist
 
 ### Required for Production
-- [ ] `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-- [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Public anonymous key
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` - Service role key (server-only)
-- [ ] `RESEND_API_KEY` - For contact form emails
-- [ ] `CONTACT_EMAIL` - Where form submissions go
-- [ ] `REVALIDATE_SECRET` - For ISR webhook security
-- [ ] `ADMIN_PASSWORD_HASH` - BCrypt hash for admin login
+- [x] `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- [x] `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Public anonymous key
+- [x] `SUPABASE_SERVICE_ROLE_KEY` - Service role key (server-only)
+- [x] `RESEND_API_KEY` - For contact form emails
+- [x] `CONTACT_EMAIL` - Where form submissions go
+- [x] `REVALIDATE_SECRET` - For ISR webhook security
+- [x] `ADMIN_PASSWORD_HASH` - BCrypt hash for admin login
 
 ### Optional
 - [ ] `NEXT_PUBLIC_GA_ID` - Google Analytics
@@ -91,11 +96,14 @@ npm run lint
 
 ## Issue Priority Queue
 
+**📋 See MASTER_TASK_LIST.md for comprehensive technical review and detailed tasks**
+
 ### 🚨 P0 - Critical (Do First)
 1. ✅ Create tracking structure
-2. ✅ Fix portfolio page loading (#1) - COMPLETED
-3. ⏳ Configure Vercel env vars (#2) - NEXT PRIORITY
-4. ⏳ Fix database schema (#3)
+2. ✅ Fix portfolio page loading (#1) - COMPLETED Jan 27, 2025
+3. ✅ Configure Vercel env vars (#2) - COMPLETED Jan 27, 2025
+4. ⏳ Fix database schema (#3) - Consolidate to is_black_white only
+5. ⏳ Connect custom domain - tonalfocus.com to new deployment
 
 ### 🎯 P1 - Core Features (Do Second)
 5. ⏳ Implement ISR revalidation (#4)
@@ -118,8 +126,17 @@ npm run lint
 
 If work is interrupted, the next person should:
 1. Check this status file for context
-2. Look at current branch with `git status`
-3. Continue from the "Next:" item in Work Log
-4. Update this file with progress
+2. **Review MASTER_TASK_LIST.md for complete technical roadmap**
+3. Look at current branch with `git status`
+4. Continue from the "Next:" item in Work Log
+5. Update this file with progress
 
-Current task details are in: `.github/ISSUES_TEMPLATE.md`
+### Key Documents:
+- **MASTER_TASK_LIST.md** - Complete technical review and prioritized tasks
+- **.github/ISSUES_TEMPLATE.md** - Issue tracking template
+- **.github/PROJECT_STATUS.md** - This file, for quick status updates
+
+### Next Immediate Tasks:
+1. Fix database schema (drop is_color column)
+2. Connect tonalfocus.com domain to new Vercel deployment
+3. Test admin panel photo upload in production
