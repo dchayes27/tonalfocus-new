@@ -8,6 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server'; // Next.js server utilities for handling requests and responses.
 import { createPublicClient } from '@/lib/supabase-public'; // Cookie-less Supabase client for public data.
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Handles GET requests to the /api/photos endpoint.
  * Fetches photos based on query parameters for category, limit, offset, and featured status.
