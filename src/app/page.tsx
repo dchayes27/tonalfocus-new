@@ -14,6 +14,7 @@ import Gallery from '@/components/Gallery'; // Component for displaying a collec
 import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
 import Button from '@/components/ui/Button'; // Reusable UI button component.
 import Image from 'next/image'; // Next.js component for optimized image rendering.
+import { createPublicClient } from '@/lib/supabase-public'; // Cookie-less Supabase client for ISR-friendly fetches.
 
 // Revalidate the homepage every 60 seconds
 // This ensures new photos appear within a minute of upload
@@ -24,31 +25,43 @@ export const revalidate = 60;
  * Renders the main landing page of the website with a horizontal scrolling filmstrip banner.
  * @returns {JSX.Element} The JSX for the homepage.
  */
-export default function Home() {
-  // Data for the gallery section, including image source, alt text, and category.
-  // This could be fetched from an API in a real application.
-  const galleryImages = [
-    {
-      src: '/images/gallery1.jpg',
-      alt: 'City buildings with blue sky',
-      category: 'Urban'
-    },
-    {
-      src: '/images/gallery2.jpg',
-      alt: 'Stone arch pathway',
-      category: 'Architecture'
-    },
-    {
-      src: '/images/gallery3.jpg',
-      alt: 'Mountain landscape',
-      category: 'Landscape'
-    },
-    {
-      src: '/images/gallery4.jpg',
-      alt: 'Urban street scene',
-      category: 'Street'
-    }
-  ];
+type FeaturedPhoto = {
+  id: string;
+  title: string | null;
+  description: string | null;
+  public_url: string | null;
+  thumbnail_url: string | null;
+  category: { name: string | null } | null;
+};
+
+export default async function Home() {
+  const supabase = createPublicClient();
+
+  const { data: featuredPhotos, error } = await supabase
+    .from('photos')
+    .select(
+      `
+        id,
+        title,
+        description,
+        public_url,
+        thumbnail_url,
+        category:categories(name)
+      `
+    )
+    .eq('is_featured', true)
+    .order('display_order', { ascending: true })
+    .limit(8);
+
+  if (error) {
+    console.error('Error fetching featured gallery photos:', error);
+  }
+
+  const galleryImages = (featuredPhotos as FeaturedPhoto[] | null | undefined)?.map((photo) => ({
+    src: photo.public_url ?? photo.thumbnail_url ?? '/images/gallery1.jpg',
+    alt: photo.title || 'Featured photo',
+    category: photo.category?.name || undefined,
+  })) ?? [];
 
   return (
     <>
@@ -64,7 +77,13 @@ export default function Home() {
         
         {/* Gallery Component: Displays images in a configurable grid. */}
         <Gallery 
-          images={galleryImages} // Array of image objects to display.
+          images={galleryImages.length > 0 ? galleryImages : [
+            {
+              src: '/images/gallery1.jpg',
+              alt: 'Portfolio coming soon',
+              category: 'Tonal Focus'
+            }
+          ]} // Prefer live Supabase images, fallback to a single placeholder.
           columns={2} // Number of columns in the gallery grid.
           gap="large" // Spacing between gallery items.
           aspectRatio="square" // Aspect ratio for the gallery images.

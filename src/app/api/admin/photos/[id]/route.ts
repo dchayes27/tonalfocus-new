@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { isAdminAuthenticated } from '@/lib/auth/admin';
 import { deleteImage } from '@/lib/storage';
+import { triggerRevalidation } from '@/lib/revalidate';
 
 // Update photo
 export async function PUT(
@@ -35,6 +36,8 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
+    triggerRevalidation();
+
     return NextResponse.json({ photo: data });
     
   } catch (error) {
@@ -92,6 +95,8 @@ export async function DELETE(
       console.error('Storage deletion failed:', storageError);
     }
     
+    triggerRevalidation();
+
     return NextResponse.json({ success: true });
     
   } catch (error) {

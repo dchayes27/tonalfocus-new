@@ -14,6 +14,37 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+async function triggerRevalidate() {
+  if (!process.env.REVALIDATE_SECRET) {
+    console.log('⚠️  Skipping revalidation: REVALIDATE_SECRET not set.');
+    return;
+  }
+
+  const endpoint =
+    process.env.REVALIDATE_ENDPOINT ||
+    `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/revalidate`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-token': process.env.REVALIDATE_SECRET,
+      },
+      body: JSON.stringify({ paths: ['/', '/portfolio'] }),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      console.warn(`⚠️  Revalidation request failed: ${response.status} ${message}`);
+    } else {
+      console.log('🔁 Revalidation triggered successfully.');
+    }
+  } catch (error) {
+    console.warn('⚠️  Failed to trigger revalidation:', error.message);
+  }
+}
+
 async function markPhotosFeatured() {
   try {
     // Get all photos
@@ -59,6 +90,7 @@ async function markPhotosFeatured() {
             
             if (updateAllError) throw updateAllError;
             console.log('✅ All photos marked as featured!');
+            await triggerRevalidate();
             break;
 
           case '2':
@@ -71,6 +103,7 @@ async function markPhotosFeatured() {
             
             if (update6Error) throw update6Error;
             console.log('✅ Latest 6 photos marked as featured!');
+            await triggerRevalidate();
             break;
 
           case '3':
@@ -84,6 +117,7 @@ async function markPhotosFeatured() {
                 
                 if (updateOneError) throw updateOneError;
                 console.log(`✅ Photo "${photos[index].title}" marked as featured!`);
+                await triggerRevalidate();
               } else {
                 console.log('Invalid photo number');
               }
@@ -100,6 +134,7 @@ async function markPhotosFeatured() {
             
             if (unmarkError) throw unmarkError;
             console.log('✅ All photos unmarked as featured');
+            await triggerRevalidate();
             break;
 
           default:

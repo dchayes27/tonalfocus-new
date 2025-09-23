@@ -5,7 +5,7 @@
  * It handles GET requests to '/api/categories' and retrieves data from a Supabase database.
  */
 import { NextResponse } from 'next/server'; // Next.js utility for creating API responses.
-import { createClient } from '@/lib/supabase-server'; // Custom Supabase client instance for server-side operations.
+import { createPublicClient } from '@/lib/supabase-public'; // Cookie-less Supabase client for public data fetching.
 
 /**
  * Handles GET requests to the /api/categories endpoint.
@@ -19,7 +19,7 @@ import { createClient } from '@/lib/supabase-server'; // Custom Supabase client 
 export async function GET() {
   try {
     // Initialize the Supabase client.
-    const supabase = createClient();
+    const supabase = createPublicClient();
 
     // Fetch data from the 'categories' table.
     // Selects all columns ('*').
