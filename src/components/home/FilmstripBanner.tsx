@@ -118,7 +118,11 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
               key={photo.id}
               className={`
                 relative overflow-hidden
-                ${isMobile ? 'w-[90vw] h-[90vw] my-8' : 'w-auto h-[70vh] max-h-[600px]'}
+                ${
+                  isMobile
+                    ? 'w-[90vw] h-[90vw] my-8'
+                    : 'w-[min(600px,80vw)] h-[min(70vh,600px)]'
+                }
                 flex-shrink-0
               `}
             >
