@@ -15,6 +15,10 @@ import Card from '@/components/ui/Card'; // Reusable UI component for content ca
 import Button from '@/components/ui/Button'; // Reusable UI button component.
 import Image from 'next/image'; // Next.js component for optimized image rendering.
 
+// Revalidate the homepage every 60 seconds
+// This ensures new photos appear within a minute of upload
+export const revalidate = 60;
+
 /**
  * Home page component.
  * Renders the main landing page of the website with a horizontal scrolling filmstrip banner.
