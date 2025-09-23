@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { isAdminAuthenticated } from '@/lib/auth/admin';
+import { triggerRevalidation } from '@/lib/revalidate';
 
 export async function POST(request: NextRequest) {
   if (!isAdminAuthenticated()) {
@@ -36,6 +37,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    triggerRevalidation();
+
     return NextResponse.json({ success: true });
     
   } catch (error) {

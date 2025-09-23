@@ -20,6 +20,7 @@ import {
   MAX_FILE_SIZE,        // Constant for maximum allowed file size.
   PHOTOS_BUCKET         // Constant for the name of the Supabase Storage bucket for photos.
 } from '@/lib/storage';   // Storage utility functions and constants.
+import { triggerRevalidation } from '@/lib/revalidate';
 
 /**
  * Handles POST requests to the /api/photos/upload endpoint.
@@ -139,6 +140,8 @@ export async function POST(request: NextRequest) {
     }
     
     // If everything is successful, return a success response with the created photo data.
+    triggerRevalidation();
+
     return NextResponse.json({ 
       success: true,
       photo: data 
