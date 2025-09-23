@@ -9,7 +9,7 @@
 import { Metadata } from 'next';
 import PhotographyGallery from '@/components/photography/PhotographyGallery';
 import { Photo } from '@/lib/types';
-import { createClient } from '@/lib/supabase-server';
+import { createPublicClient } from '@/lib/supabase-public';
 
 // Metadata for SEO
 export const metadata: Metadata = {
@@ -36,7 +36,7 @@ async function getPhotos(): Promise<{
   color: Photo[] 
 }> {
   try {
-    const supabase = createClient();
+    const supabase = createPublicClient();
     
     const { data, error } = await supabase
       .from('photos')
