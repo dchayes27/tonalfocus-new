@@ -6,7 +6,7 @@
  * Data is retrieved from a Supabase database.
  */
 import { NextRequest, NextResponse } from 'next/server'; // Next.js server utilities for handling requests and responses.
-import { createClient } from '@/lib/supabase-server'; // Custom Supabase client for server-side operations.
+import { createPublicClient } from '@/lib/supabase-public'; // Cookie-less Supabase client for public data.
 
 /**
  * Handles GET requests to the /api/photos endpoint.
@@ -20,7 +20,7 @@ import { createClient } from '@/lib/supabase-server'; // Custom Supabase client 
 export async function GET(request: NextRequest) {
   try {
     // Initialize the Supabase client.
-    const supabase = createClient();
+    const supabase = createPublicClient();
     // Access URL search parameters from the request.
     const searchParams = request.nextUrl.searchParams;
     
