@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
   try {
     // Initialize the Supabase client.
     const supabase = createPublicClient();
-    // Access URL search parameters from the request.
-    const searchParams = request.nextUrl.searchParams;
+    // Access URL search parameters without using nextUrl to avoid static bailouts.
+    const searchParams = new URL(request.url).searchParams;
     
     // Retrieve and parse query parameters for filtering and pagination.
     const view = searchParams.get('view'); // 'all', 'color', 'bw'
