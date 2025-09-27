@@ -113,15 +113,19 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
           `}
           style={{ willChange: 'transform' }}
         >
-          {photos.map((photo, index) => (
+          {photos.map((photo, index) => {
+            const imageSrc = photo.public_url || photo.thumbnail_url || '/images/gallery1.jpg';
+            const altText = photo.title || `Featured photo ${index + 1}`;
+
+            return (
             <div
               key={photo.id}
               className={`
                 relative overflow-hidden
                 ${
                   isMobile
-                    ? 'w-[90vw] h-[90vw] my-8'
-                    : 'w-[min(600px,80vw)] h-[min(70vh,600px)]'
+                    ? 'w-[85vw] h-[85vw] my-8'
+                    : 'w-[min(820px,65vw)] h-[min(70vh,820px)]'
                 }
                 flex-shrink-0
               `}
@@ -144,13 +148,15 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
                 {/* Photo */}
                 <div className="absolute inset-0 flex items-center justify-center bg-primary-charcoal p-8">
                   <Image
-                    src={photo.public_url || photo.thumbnail_url || '/images/gallery1.jpg'}
-                    alt={photo.title}
-                    width={600}
-                    height={600}
+                    src={imageSrc}
+                    alt={altText}
+                    width={1200}
+                    height={1200}
                     className="w-full h-full object-cover rounded-lg shadow-2xl"
                     priority={index < 3}
-                    quality={90}
+                    quality={index === 0 ? 95 : 90}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    sizes="(max-width: 600px) 85vw, (max-width: 1200px) 65vw, 820px"
                   />
                 </div>
 
@@ -162,7 +168,8 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
