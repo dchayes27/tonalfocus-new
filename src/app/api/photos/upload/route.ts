@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const description = formData.get('description') as string | null; // Optional description.
     const categoryId = formData.get('category_id') as string | null; // Optional category ID.
     const isFeatured = formData.get('is_featured') === 'true'; // Boolean flag for featured status.
-    const isColor = formData.get('is_color') !== 'false'; // Default to true for color photos.
+    const isBlackWhite = formData.get('is_black_white') === 'true'; // TRUE for B&W, FALSE for color.
     
     // Convert empty strings to null for database fields
     const cleanDescription = description?.trim() || null;
@@ -110,14 +110,14 @@ export async function POST(request: NextRequest) {
       thumbnail_path: thumbnailPath,    // Path in Supabase Storage for the thumbnail.
       thumbnail_url: thumbnailUrl,      // Publicly accessible URL for the thumbnail.
       is_featured: isFeatured,
-      is_color: isColor,                // Track if photo is color or B&W
+      is_black_white: isBlackWhite,     // Track if photo is B&W (true) or color (false)
       display_order: 999,               // Default to end of list
       metadata: {                       // Store additional metadata as a JSON object.
         originalName: file.name,
         mimeType: file.type,
         uploadedAt: new Date().toISOString(),
         exif: exifData || {},           // Include EXIF data
-        isColor: isColor
+        colorMode: isBlackWhite ? 'black_white' : 'color'
       }
     };
 

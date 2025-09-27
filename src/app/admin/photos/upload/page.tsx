@@ -16,7 +16,7 @@ interface UploadFile extends File {
     description: string;
     category_id: string;
     is_featured: boolean;
-    is_color?: boolean;
+    is_black_white?: boolean;
   };
 }
 
@@ -51,6 +51,7 @@ export default function PhotoUploadPage() {
       
       // Detect if image is color or B&W
       const isColor = await detectImageColorMode(file);
+      const isBlackWhite = !isColor;
       
       // Create proper File object with all properties
       const uploadFile = Object.assign(file, {
@@ -62,7 +63,7 @@ export default function PhotoUploadPage() {
           description: '',
           category_id: '',
           is_featured: false,
-          is_color: isColor
+          is_black_white: isBlackWhite
         }
       }) as UploadFile;
       
@@ -72,14 +73,16 @@ export default function PhotoUploadPage() {
         size: file.size,
         type: file.type,
         sizeMB: (file.size / 1024 / 1024).toFixed(2),
-        isColor: isColor ? 'Color' : 'Black & White'
+        colorMode: isBlackWhite ? 'Black & White' : 'Color'
       });
         
       return uploadFile;
     }));
     
     toast.dismiss(loadingToast);
-    toast.success(`Detected ${newFiles.filter(f => f.metadata?.is_color).length} color and ${newFiles.filter(f => !f.metadata?.is_color).length} B&W photos`);
+    const bwCount = newFiles.filter(f => f.metadata?.is_black_white).length;
+    const colorCount = newFiles.length - bwCount;
+    toast.success(`Detected ${colorCount} color and ${bwCount} B&W photos`);
     
     setFiles(prev => [...prev, ...newFiles]);
   }, []);
@@ -105,7 +108,7 @@ export default function PhotoUploadPage() {
     formData.append('description', file.metadata?.description || '');
     formData.append('category_id', file.metadata?.category_id || '');
     formData.append('is_featured', String(file.metadata?.is_featured || false));
-    formData.append('is_color', String(file.metadata?.is_color !== false));
+    formData.append('is_black_white', String(file.metadata?.is_black_white === true));
     
     // Update status
     setFiles(prev => prev.map((f, i) => 
@@ -309,11 +312,11 @@ export default function PhotoUploadPage() {
                             <label className="flex items-center text-sm">
                               <input
                                 type="checkbox"
-                                checked={file.metadata?.is_color !== false}
-                                onChange={(e) => updateFileMetadata(index, { is_color: e.target.checked })}
+                                checked={file.metadata?.is_black_white === true}
+                                onChange={(e) => updateFileMetadata(index, { is_black_white: e.target.checked })}
                                 className="mr-2"
                               />
-                              Color
+                              Black &amp; White
                             </label>
                           </div>
                           <button
@@ -332,7 +335,7 @@ export default function PhotoUploadPage() {
                             <h3 className="font-semibold">{file.metadata?.title || file.name}</h3>
                             <p className="text-xs text-gray-400">
                               {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Size unknown'}
-                              <span className="ml-2">• {file.metadata?.is_color !== false ? 'Color' : 'B&W'}</span>
+                              <span className="ml-2">• {file.metadata?.is_black_white ? 'B&W' : 'Color'}</span>
                               {file.metadata?.category_id && categories.find(c => c.id === file.metadata?.category_id) && (
                                 <span className="ml-2">• {categories.find(c => c.id === file.metadata?.category_id)?.name}</span>
                               )}
