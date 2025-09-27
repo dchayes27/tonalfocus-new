@@ -32,7 +32,7 @@ interface Photo {
   public_url: string;
   thumbnail_url: string;
   is_featured: boolean;
-  is_color: boolean;
+  is_black_white: boolean;
   display_order: number;
   metadata?: Record<string, any>;
   category?: {
@@ -148,8 +148,8 @@ function SortablePhoto({
       <div className="p-3">
         <h3 className="font-semibold truncate">{photo.title}</h3>
         <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
-          <span className={photo.is_color ? 'text-blue-400' : 'text-gray-300'}>
-            {photo.is_color ? '🎨 Color' : '⚫ B&W'}
+          <span className={photo.is_black_white ? 'text-gray-300' : 'text-blue-400'}>
+            {photo.is_black_white ? '⚫ B&W' : '🎨 Color'}
           </span>
           {photo.category && (
             <>

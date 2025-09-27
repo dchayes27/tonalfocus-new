@@ -37,3 +37,20 @@ After running the migration, you'll need to mark which photos are black & white.
 
 ### 4. Verify the Changes
 Test the portfolio page to ensure photos are properly grouped by B&W vs Color.
+
+## Removing Legacy `is_color` Field
+
+After confirming `is_black_white` is populated, run `002_drop_is_color_field.sql` to retire the old column:
+
+```sql
+-- Backfill from is_color then drop the column and index
+\i database/migrations/002_drop_is_color_field.sql
+```
+
+This script:
+
+- Copies any remaining `is_color` state into `is_black_white`
+- Drops the `idx_photos_is_color` index
+- Removes the `is_color` column
+
+Execute it from the Supabase SQL editor (or your migration tool of choice) once the new flag is live in production.

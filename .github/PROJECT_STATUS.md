@@ -102,7 +102,7 @@ npm run lint
 1. ✅ Create tracking structure
 2. ✅ Fix portfolio page loading (#1) - COMPLETED Jan 27, 2025
 3. ✅ Configure Vercel env vars (#2) - COMPLETED Jan 27, 2025
-4. ⏳ Fix database schema (#3) - Consolidate to is_black_white only
+4. ✅ Fix database schema (#3) - Consolidate to is_black_white only (Sep 27, 2025)
 5. ⏳ Connect custom domain - tonalfocus.com to new deployment
 
 ### 🎯 P1 - Core Features (Do Second)
@@ -137,6 +137,6 @@ If work is interrupted, the next person should:
 - **.github/PROJECT_STATUS.md** - This file, for quick status updates
 
 ### Next Immediate Tasks:
-1. Fix database schema (drop is_color column)
-2. Connect tonalfocus.com domain to new Vercel deployment
-3. Test admin panel photo upload in production
+1. Connect tonalfocus.com domain to new Vercel deployment
+2. Test admin panel photo upload in production
+3. Tune hero image delivery for tonal fidelity vs performance (#33)

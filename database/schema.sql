@@ -31,8 +31,8 @@ CREATE TABLE photos (
     thumbnail_url TEXT NOT NULL,  -- Thumbnail public URL
     display_order INTEGER DEFAULT 0,
     is_featured BOOLEAN DEFAULT FALSE,
-    is_color BOOLEAN DEFAULT TRUE,     -- TRUE for color, FALSE for B&W
-    metadata JSONB DEFAULT '{}',,
+    is_black_white BOOLEAN DEFAULT FALSE, -- TRUE for B&W, FALSE for color
+    metadata JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,7 +41,7 @@ CREATE TABLE photos (
 CREATE INDEX idx_photos_category_id ON photos(category_id);
 CREATE INDEX idx_photos_display_order ON photos(display_order);
 CREATE INDEX idx_photos_is_featured ON photos(is_featured);
-CREATE INDEX idx_photos_is_color ON photos(is_color);
+CREATE INDEX idx_photos_is_black_white ON photos(is_black_white);
 CREATE INDEX idx_categories_slug ON categories(slug);
 
 -- Create updated_at trigger function

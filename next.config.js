@@ -17,11 +17,16 @@ if (supabaseUrl) {
   }
 }
 
+const deviceSizes = [320, 480, 640, 768, 896, 1024, 1280, 1536];
+const imageSizes = [32, 48, 64, 96, 128, 256, 384, 512];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns,
+    deviceSizes,
+    imageSizes,
   },
 };
 
