@@ -9,18 +9,20 @@
  * IMPORTANT: Authentication is not yet implemented in this route.
  * It should be added to ensure only authorized users can upload photos.
  */
+import { Buffer } from 'node:buffer';
 import { NextRequest, NextResponse } from 'next/server'; // Next.js server utilities.
 import { createClient } from '@/lib/supabase-server'; // Server-side Supabase client.
-import { 
-  uploadImage,          // Helper function to upload an image to storage.
-  createThumbnail,      // Helper function to generate and upload a thumbnail.
-  getImageDimensions,   // Helper function to get image dimensions.
-  extractExifData,      // Helper function to extract EXIF metadata.
-  ALLOWED_IMAGE_TYPES,  // Constant array of allowed image MIME types.
-  MAX_FILE_SIZE,        // Constant for maximum allowed file size.
-  PHOTOS_BUCKET         // Constant for the name of the Supabase Storage bucket for photos.
-} from '@/lib/storage';   // Storage utility functions and constants.
+import {
+  extractExifData,
+  ALLOWED_IMAGE_TYPES,
+  MAX_FILE_SIZE,
+  PHOTOS_BUCKET,
+  createThumbnailFromBuffer,
+  getImageDimensionsFromBuffer,
+  uploadImageFromBuffer,
+} from '@/lib/storage';
 import { triggerRevalidation } from '@/lib/revalidate';
+import { isAdminAuthenticated } from '@/lib/auth/admin';
 
 /**
  * Handles POST requests to the /api/photos/upload endpoint.
@@ -34,11 +36,11 @@ import { triggerRevalidation } from '@/lib/revalidate';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient(); // Initialize Supabase client.
-    
-    // TODO: Implement authentication check here.
-    // This is crucial for securing the upload functionality.
-    // For now, uploads are permitted without authentication, which is a security risk.
+    if (!isAdminAuthenticated()) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const supabase = createClient();
     
     const formData = await request.formData(); // Parse multipart/form-data.
     
@@ -81,18 +83,29 @@ export async function POST(request: NextRequest) {
     
     // --- Image Processing & Storage ---
     // Get the dimensions (width and height) of the uploaded image.
-    const dimensions = await getImageDimensions(file);
+    const arrayBuffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
+
+    const { width, height } = await getImageDimensionsFromBuffer(fileBuffer);
     
     // Extract EXIF data
     const exifData = await extractExifData(file);
     
     // Upload the main image file to Supabase Storage.
     // `randomizeFilename: true` helps prevent filename collisions.
-    const { path: storagePath, publicUrl } = await uploadImage(file, PHOTOS_BUCKET, true);
+    const extension = file.name.split('.').pop()?.toLowerCase() || file.type.split('/').pop() || 'jpg';
+    const contentType = file.type || 'image/jpeg';
+
+    const { path: storagePath, publicUrl } = await uploadImageFromBuffer({
+      buffer: fileBuffer,
+      bucket: PHOTOS_BUCKET,
+      contentType,
+      extension,
+    });
     console.log('Main image uploaded successfully:', { storagePath, publicUrl });
-    
+
     // Create a thumbnail from the image file and upload it.
-    const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnail(file, true);
+    const { path: thumbnailPath, publicUrl: thumbnailUrl } = await createThumbnailFromBuffer(fileBuffer);
     console.log('Thumbnail created successfully:', { thumbnailPath, thumbnailUrl });
     
     // --- Database Interaction ---
@@ -103,8 +116,8 @@ export async function POST(request: NextRequest) {
       category_id: cleanCategoryId,     // Use cleaned category ID (null instead of empty string)
       filename: file.name,
       file_size: file.size,
-      width: dimensions.width,
-      height: dimensions.height,
+      width,
+      height,
       storage_path: storagePath,        // Path in Supabase Storage for the main image.
       public_url: publicUrl,            // Publicly accessible URL for the main image.
       thumbnail_path: thumbnailPath,    // Path in Supabase Storage for the thumbnail.
@@ -116,8 +129,9 @@ export async function POST(request: NextRequest) {
         originalName: file.name,
         mimeType: file.type,
         uploadedAt: new Date().toISOString(),
-        exif: exifData || {},           // Include EXIF data
-        colorMode: isBlackWhite ? 'black_white' : 'color'
+        exif: exifData || {},
+        colorMode: isBlackWhite ? 'black_white' : 'color',
+        dimensions: { width, height },
       }
     };
 
