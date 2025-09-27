@@ -1,3 +1,4 @@
+import type { Buffer } from 'node:buffer';
 import { createClient } from './supabase-client';
 import { createClient as createServerClient } from './supabase-server';
 import { CreatePhotoInput } from './types';
@@ -74,26 +75,24 @@ export async function extractExifData(file: File): Promise<ExifData | null> {
  * Note: This only works in browser environment
  */
 export function getImageDimensions(file: File): Promise<ImageDimensions> {
-  // For server-side, we'll return default dimensions
-  // In production, you'd use a library like sharp
   if (typeof window === 'undefined') {
     return Promise.resolve({ width: 1920, height: 1080 });
   }
-  
+
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    
+
     img.onload = () => {
       URL.revokeObjectURL(url);
       resolve({ width: img.width, height: img.height });
     };
-    
+
     img.onerror = () => {
       URL.revokeObjectURL(url);
       reject(new Error('Failed to load image'));
     };
-    
+
     img.src = url;
   });
 }
@@ -192,4 +191,75 @@ export async function createThumbnail(
   // For now, upload the same image to thumbnails bucket
   // In production, you'd resize the image first
   return uploadImage(file, THUMBNAILS_BUCKET, isServer);
+}
+
+/**
+ * --- Server-side helpers using Sharp ---
+ */
+
+async function getSharpInstance() {
+  const sharpModule = await import('sharp');
+  return sharpModule.default || sharpModule;
+}
+
+export async function getImageDimensionsFromBuffer(buffer: Buffer): Promise<ImageDimensions> {
+  const sharp = await getSharpInstance();
+  const metadata = await sharp(buffer).metadata();
+  return {
+    width: metadata.width ?? 0,
+    height: metadata.height ?? 0,
+  };
+}
+
+interface UploadBufferOptions {
+  buffer: Buffer;
+  bucket?: string;
+  contentType: string;
+  extension: string;
+}
+
+export async function uploadImageFromBuffer({
+  buffer,
+  bucket = PHOTOS_BUCKET,
+  contentType,
+  extension,
+}: UploadBufferOptions): Promise<{ path: string; publicUrl: string }> {
+  const supabase = createServerClient();
+  const filename = generateStorageFilename(`upload.${extension}`);
+  const path = `${new Date().getFullYear()}/${filename}`;
+
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(path, buffer, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType,
+    });
+
+  if (error) {
+    throw new Error(`Upload failed: ${error.message}`);
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
+
+  return { path, publicUrl };
+}
+
+export async function createThumbnailFromBuffer(buffer: Buffer): Promise<{ path: string; publicUrl: string }> {
+  const sharp = await getSharpInstance();
+  const processed = await sharp(buffer)
+    .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 90 })
+    .toBuffer();
+
+  return uploadImageFromBuffer({
+    buffer: processed,
+    bucket: THUMBNAILS_BUCKET,
+    contentType: 'image/jpeg',
+    extension: 'jpg',
+  });
 }
