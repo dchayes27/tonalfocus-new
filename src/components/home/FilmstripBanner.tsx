@@ -6,9 +6,10 @@ import { Photo } from '@/lib/types';
 
 interface FilmstripBannerProps {
   photos: Photo[];
+  introLine?: string;
 }
 
-export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
+export default function FilmstripBanner({ photos, introLine }: FilmstripBannerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const filmstripRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -95,12 +96,18 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
     >
       <div className={isMobile ? '' : 'sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center'}>
         {/* Header Text */}
-        <div className={`${isMobile ? 'relative pt-8' : 'absolute top-0 left-0'} w-full p-8 md:p-12 z-10`}>
-          <h1 className="text-4xl md:text-5xl font-bold text-primary-charcoal retro-font">
+        <div
+          className={`${isMobile ? 'relative pt-10' : 'absolute top-0 left-0'} w-full px-8 md:px-16 pt-12 md:pt-16 pb-6 z-10 pointer-events-none`}
+        >
+          <span className="inline-flex items-center gap-3 text-[11px] tracking-[0.4em] uppercase text-primary-mauve/70">
+            <span className="h-px w-12 bg-primary-mauve/40" aria-hidden />
+            filmstrip diary
+          </span>
+          <h1 className="mt-3 text-4xl md:text-5xl lg:text-6xl font-bold text-primary-charcoal retro-font drop-shadow-[0_3px_12px_rgba(255,255,255,0.35)]">
             TONAL FOCUS
           </h1>
-          <p className="text-lg md:text-xl text-primary-mauve mt-2">
-            Film Photography | B&W | Color
+          <p className="mt-4 max-w-xl text-base md:text-lg text-primary-charcoal/85 backdrop-blur-sm bg-secondary-offWhite/70 px-4 py-2 rounded-sm">
+            {introLine ?? 'Medium-format film work, hand-picked each week from the Tonal Focus archive.'}
           </p>
         </div>
 
@@ -109,7 +116,7 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
           ref={filmstripRef}
           className={`
             ${isMobile ? 'flex flex-col w-full items-center' : 'flex items-center w-max'}
-            ${!isMobile && 'pl-[calc((100vw-600px)/2)]'}
+            ${!isMobile && 'pl-[calc((100vw-760px)/2)]'}
           `}
           style={{ willChange: 'transform' }}
         >
@@ -124,13 +131,14 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
                 relative overflow-hidden
                 ${
                   isMobile
-                    ? 'w-[85vw] h-[85vw] my-8'
-                    : 'w-[min(820px,65vw)] h-[min(70vh,820px)]'
+                    ? 'w-[70vw] h-[70vw] my-8'
+                    : 'w-[min(780px,58vw)] h-[min(68vh,780px)]'
                 }
                 flex-shrink-0
               `}
             >
               <div className="relative w-full h-full group">
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-primary-beige/40 via-transparent to-transparent" aria-hidden />
                 {/* Film perforation effect - top */}
                 <div className="absolute top-0 left-0 right-0 h-8 bg-primary-charcoal z-10 flex justify-around items-center">
                   {[...Array(6)].map((_, i) => (
@@ -146,7 +154,7 @@ export default function FilmstripBanner({ photos }: FilmstripBannerProps) {
                 </div>
 
                 {/* Photo */}
-                <div className="absolute inset-0 flex items-center justify-center bg-primary-charcoal p-8">
+                <div className="absolute inset-0 flex items-center justify-center bg-primary-charcoal p-6 lg:p-8">
                   <Image
                     src={imageSrc}
                     alt={altText}

@@ -102,7 +102,7 @@ export default async function Home() {
       {/* About and Contact Section: Provides brief introductions and links. */}
       <section className="py-16 bg-primary-beige">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* About Me Card */}
             <Card variant="white" withGrain={true} title="ABOUT ME">
               <div className="flex flex-col md:flex-row gap-6 items-center mb-6">
@@ -149,7 +149,26 @@ export default async function Home() {
               {/* Link to the full "Contact Me" page. */}
               <div className="text-center">
                 <Button href="/contact" variant="tertiary">
-                  Contact Me
+                Contact Me
+              </Button>
+            </div>
+            </Card>
+
+            {/* Gear Teaser Card */}
+            <Card variant="white" withGrain={true} title="GEAR TEASER">
+              <p className="leading-relaxed text-primary-charcoal mb-6">
+                Hasselblad 500C. Rolleiflex 3.5. Hand-loaded Portra. The tools shape the tones,
+                and we’re documenting the process in a new gear showcase inspired by
+                teenage.engineering quick guides.
+              </p>
+              <ul className="text-sm text-primary-charcoal/80 space-y-2 mb-6">
+                <li>• Line-art callouts for each camera</li>
+                <li>• Film stocks, lenses, and workflow tips</li>
+                <li>• Quick-guide panels for portrait & street sessions</li>
+              </ul>
+              <div className="text-center">
+                <Button href="/portfolio#gear" variant="outline">
+                  Preview Coming Soon
                 </Button>
               </div>
             </Card>
