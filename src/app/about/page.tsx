@@ -7,9 +7,10 @@
  */
 import Image from 'next/image'; // Next.js component for optimized image rendering.
 import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
+import type { Metadata } from 'next';
 
 // Metadata for the About page, used for SEO and browser tab information.
-export const metadata = {
+export const metadata: Metadata = {
   title: 'About | TonalFocus Photography',
   description: 'Learn more about the photographer behind TonalFocus and their creative approach to capturing nostalgic and modern aesthetics.',
 };
