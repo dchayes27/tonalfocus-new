@@ -104,10 +104,10 @@ export default function FilmstripBanner({ photos, introLine }: FilmstripBannerPr
             filmstrip diary
           </span>
           <h1 className="mt-3 text-4xl md:text-5xl lg:text-6xl font-bold text-primary-charcoal retro-font drop-shadow-[0_3px_12px_rgba(255,255,255,0.35)]">
-            TONAL FOCUS
+            Medium-Format Stories
           </h1>
           <p className="mt-4 max-w-xl text-base md:text-lg text-primary-charcoal/85 backdrop-blur-sm bg-secondary-offWhite/70 px-4 py-2 rounded-sm">
-            {introLine ?? 'Medium-format film work, hand-picked each week from the Tonal Focus archive.'}
+            {introLine ?? 'Hand-picked frames from the Tonal Focus archive—curated weekly.'}
           </p>
         </div>
 
