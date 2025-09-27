@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
+import { createServiceRoleClient } from '@/lib/supabase-server';
 import { isAdminAuthenticated } from '@/lib/auth/admin';
 
 // Update category
@@ -12,7 +12,7 @@ export async function PUT(
   }
   
   try {
-    const supabase = createClient();
+    const supabase = createServiceRoleClient();
     const body = await request.json();
     const { id } = params;
     
@@ -52,7 +52,7 @@ export async function DELETE(
   }
   
   try {
-    const supabase = createClient();
+    const supabase = createServiceRoleClient();
     const { id } = params;
     
     // Check if category has photos

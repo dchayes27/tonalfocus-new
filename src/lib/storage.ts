@@ -1,6 +1,6 @@
 import type { Buffer } from 'node:buffer';
 import { createClient } from './supabase-client';
-import { createClient as createServerClient } from './supabase-server';
+import { createServiceRoleClient } from './supabase-server';
 import { CreatePhotoInput } from './types';
 import exifr from 'exifr';
 
@@ -115,7 +115,7 @@ export async function uploadImage(
   bucket: string = PHOTOS_BUCKET,
   isServer: boolean = false
 ): Promise<{ path: string; publicUrl: string }> {
-  const supabase = isServer ? createServerClient() : createClient();
+  const supabase = isServer ? createServiceRoleClient() : createClient();
   
   // Validate file type
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -169,7 +169,7 @@ export async function deleteImage(
   bucket: string = PHOTOS_BUCKET,
   isServer: boolean = false
 ): Promise<void> {
-  const supabase = isServer ? createServerClient() : createClient();
+  const supabase = isServer ? createServiceRoleClient() : createClient();
   
   const { error } = await supabase.storage
     .from(bucket)
@@ -224,7 +224,7 @@ export async function uploadImageFromBuffer({
   contentType,
   extension,
 }: UploadBufferOptions): Promise<{ path: string; publicUrl: string }> {
-  const supabase = createServerClient();
+  const supabase = createServiceRoleClient();
   const filename = generateStorageFilename(`upload.${extension}`);
   const path = `${new Date().getFullYear()}/${filename}`;
 

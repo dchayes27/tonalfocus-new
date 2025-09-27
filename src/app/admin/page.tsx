@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase-server';
+import { createServiceRoleClient } from '@/lib/supabase-server';
 
 async function getStats() {
-  const supabase = createClient();
+  const supabase = createServiceRoleClient();
   
   // Get photo count
   const { count: photoCount } = await supabase

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
+import { createServiceRoleClient } from '@/lib/supabase-server';
 import { isAdminAuthenticated } from '@/lib/auth/admin';
 import { triggerRevalidation } from '@/lib/revalidate';
 
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   }
   
   try {
-    const supabase = createClient();
+    const supabase = createServiceRoleClient();
     const { photoIds } = await request.json();
     
     if (!Array.isArray(photoIds)) {

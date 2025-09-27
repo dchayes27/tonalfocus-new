@@ -11,7 +11,7 @@
  */
 import { Buffer } from 'node:buffer';
 import { NextRequest, NextResponse } from 'next/server'; // Next.js server utilities.
-import { createClient } from '@/lib/supabase-server'; // Server-side Supabase client.
+import { createServiceRoleClient } from '@/lib/supabase-server'; // Server-side Supabase client.
 import {
   extractExifData,
   ALLOWED_IMAGE_TYPES,
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createClient();
+    const supabase = createServiceRoleClient();
     
     const formData = await request.formData(); // Parse multipart/form-data.
     
