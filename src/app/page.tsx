@@ -14,7 +14,26 @@ import Gallery from '@/components/Gallery'; // Component for displaying a collec
 import Card from '@/components/ui/Card'; // Reusable UI component for content cards.
 import Button from '@/components/ui/Button'; // Reusable UI button component.
 import Image from 'next/image'; // Next.js component for optimized image rendering.
+import type { Metadata } from 'next';
 import { createPublicClient } from '@/lib/supabase-public'; // Cookie-less Supabase client for ISR-friendly fetches.
+
+const TITLE = 'Film Photography Portfolio';
+const DESCRIPTION = 'Explore medium-format film work from Tonal Focus: curated galleries, a scrolling filmstrip hero, and stories told through light and grain.';
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: 'website',
+  },
+  twitter: {
+    title: TITLE,
+    description: DESCRIPTION,
+    card: 'summary_large_image',
+  },
+};
 
 // Revalidate the homepage every 60 seconds
 // This ensures new photos appear within a minute of upload
