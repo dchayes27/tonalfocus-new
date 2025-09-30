@@ -124,6 +124,7 @@ export default function FilmstripBanner({ photos, introLine }: FilmstripBannerPr
           {photos.map((photo, index) => {
             const imageSrc = photo.public_url || photo.thumbnail_url || '/images/gallery1.jpg';
             const altText = photo.title || `Featured photo ${index + 1}`;
+            const isPriorityFrame = index < 3;
 
             return (
             <div
@@ -162,9 +163,9 @@ export default function FilmstripBanner({ photos, introLine }: FilmstripBannerPr
                     width={1200}
                     height={1200}
                     className="w-full h-full object-cover rounded-lg shadow-2xl"
-                    priority={index < 3}
+                    priority={isPriorityFrame}
                     quality={index === 0 ? 95 : 90}
-                    loading={index === 0 ? 'eager' : 'lazy'}
+                    loading={isPriorityFrame ? undefined : 'lazy'}
                     sizes="(max-width: 600px) 85vw, (max-width: 1200px) 65vw, 820px"
                   />
                 </div>
