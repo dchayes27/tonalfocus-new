@@ -95,20 +95,21 @@ export default function FilmstripBanner({ photos, introLine }: FilmstripBannerPr
       className={isMobile ? '' : 'h-[400vh] relative w-full'}
     >
       <div className={isMobile ? '' : 'sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center'}>
-        {/* Header Text */}
+        {/* Header Chip */}
         <div
-          className={`${isMobile ? 'relative pt-10' : 'absolute top-0 left-0'} w-full px-8 md:px-16 pt-12 md:pt-16 pb-6 z-10 pointer-events-none`}
+          className={`${
+            isMobile
+              ? 'relative pt-10 flex justify-center'
+              : 'absolute top-10 left-16'
+          } w-full px-8 md:px-0 z-10 pointer-events-none`}
         >
-          <span className="inline-flex items-center gap-3 text-[11px] tracking-[0.4em] uppercase text-primary-mauve/70">
+          <span
+            className="inline-flex items-center gap-3 rounded-full bg-secondary-offWhite/80 px-4 py-2 text-[11px] uppercase tracking-[0.4em] text-primary-mauve/80 shadow-sm"
+            title={introLine ?? undefined}
+          >
             <span className="h-px w-12 bg-primary-mauve/40" aria-hidden />
             filmstrip diary
           </span>
-          <h1 className="mt-3 text-4xl md:text-5xl lg:text-6xl font-bold text-primary-charcoal retro-font drop-shadow-[0_3px_12px_rgba(255,255,255,0.35)]">
-            Medium-Format Stories
-          </h1>
-          <p className="mt-4 max-w-xl text-base md:text-lg text-primary-charcoal/85 backdrop-blur-sm bg-secondary-offWhite/70 px-4 py-2 rounded-sm">
-            {introLine ?? 'Hand-picked frames from the Tonal Focus archive—curated weekly.'}
-          </p>
         </div>
 
         {/* Filmstrip */}

@@ -88,6 +88,7 @@ export default async function Home() {
           gap="large" // Spacing between gallery items.
           aspectRatio="square" // Aspect ratio for the gallery images.
           withHoverEffect={true} // Enables a hover effect on gallery items.
+          frameStyle="film" // Display as stylised film frames.
           className="mb-12" // Additional styling for the gallery container.
         />
         
