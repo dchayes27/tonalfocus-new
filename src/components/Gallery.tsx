@@ -15,6 +15,7 @@ export interface GalleryProps { // Added export for consistency, though not stri
   gap?: 'none' | 'small' | 'medium' | 'large';
   aspectRatio?: 'square' | 'landscape' | 'portrait';
   withHoverEffect?: boolean;
+  frameStyle?: 'default' | 'film';
   className?: string;
 }
 
@@ -24,6 +25,7 @@ const Gallery = ({
   gap = 'medium',
   aspectRatio = 'square',
   withHoverEffect = true,
+  frameStyle = 'default',
   className = ''
 }: GalleryProps) => {
   const [isLoading, setIsLoading] = useState<Record<number, boolean>>({});
@@ -62,7 +64,33 @@ const Gallery = ({
     <div className={`grid ${columnMap[columns]} ${gapMap[gap]} ${className}`}>
       {images.map((image, index) => (
         <div key={index} className="group transform transition-transform duration-500 hover:-translate-y-1">
-          <div className={`relative overflow-hidden ${aspectRatioMap[aspectRatio]} shadow-lg rounded-sm border-2 border-gray-100`}>
+          <div
+            className={`relative overflow-hidden ${aspectRatioMap[aspectRatio]} ${
+              frameStyle === 'film'
+                ? 'rounded-[18px] border border-primary-charcoal/40 bg-primary-charcoal shadow-2xl'
+                : 'shadow-lg rounded-sm border-2 border-gray-100'
+            }`}
+          >
+            {frameStyle === 'film' && (
+              <>
+                <div className="absolute inset-x-0 top-0 flex h-6 items-center justify-around bg-primary-charcoal">
+                  {Array.from({ length: 5 }).map((_, sprocketIndex) => (
+                    <span
+                      key={`top-${sprocketIndex}`}
+                      className="h-4 w-3 rounded-[1px] bg-secondary-offWhite/90"
+                    />
+                  ))}
+                </div>
+                <div className="absolute inset-x-0 bottom-0 flex h-6 items-center justify-around bg-primary-charcoal">
+                  {Array.from({ length: 5 }).map((_, sprocketIndex) => (
+                    <span
+                      key={`bottom-${sprocketIndex}`}
+                      className="h-4 w-3 rounded-[1px] bg-secondary-offWhite/90"
+                    />
+                  ))}
+                </div>
+              </>
+            )}
             {/* Loading placeholder */}
             {!isLoading[index] && (
               <div className="absolute inset-0 bg-gray-200 animate-pulse" />
@@ -84,6 +112,14 @@ const Gallery = ({
               `}
               onLoad={() => handleImageLoad(index)}
             />
+
+            {frameStyle === 'film' && (
+              <div className="absolute bottom-9 right-5 rounded bg-primary-charcoal/80 px-3 py-1">
+                <span className="text-xs font-mono uppercase tracking-[0.35em] text-primary-mauve">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+              </div>
+            )}
           </div>
           
           {/* Enhanced caption display */}
