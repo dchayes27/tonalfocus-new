@@ -44,24 +44,43 @@ check_env_var() {
     fi
 }
 
-# Check Supabase variables
-echo "Database (Supabase):"
+# Check Supabase variables (REQUIRED)
+echo "Database (Supabase) - REQUIRED:"
 check_env_var "NEXT_PUBLIC_SUPABASE_URL" "Supabase project URL" "required"
 check_env_var "NEXT_PUBLIC_SUPABASE_ANON_KEY" "Public anonymous key" "required"
 check_env_var "SUPABASE_SERVICE_ROLE_KEY" "Service role key for server-side" "required"
 
 echo ""
-echo "Email (Resend):"
-check_env_var "RESEND_API_KEY" "Resend API key for contact form" "optional"
-check_env_var "CONTACT_EMAIL" "Email to receive form submissions" "optional"
-
-echo ""
-echo "Authentication:"
+echo "Admin Authentication - REQUIRED:"
+check_env_var "ADMIN_USERNAME" "Admin username" "required"
 check_env_var "ADMIN_PASSWORD_HASH" "BCrypt hash for admin login" "required"
 
 echo ""
-echo "Other:"
-check_env_var "REVALIDATE_SECRET" "Secret for ISR revalidation webhook" "optional"
+echo "Revalidation - REQUIRED for production:"
+check_env_var "REVALIDATE_SECRET" "Secret for ISR revalidation endpoint" "required"
+
+echo ""
+echo "Site Configuration - OPTIONAL:"
+check_env_var "NEXT_PUBLIC_SITE_URL" "Base URL for site" "optional"
+check_env_var "REVALIDATE_ENDPOINT" "Custom revalidation endpoint URL" "optional"
+
+echo ""
+echo "Contact Information - OPTIONAL:"
+check_env_var "NEXT_PUBLIC_CONTACT_EMAIL" "Public contact email" "optional"
+check_env_var "NEXT_PUBLIC_CONTACT_PHONE" "Public contact phone" "optional"
+check_env_var "CONTACT_EMAIL" "Backend recipient email" "optional"
+
+echo ""
+echo "Email Service (Resend) - OPTIONAL:"
+check_env_var "RESEND_API_KEY" "Resend API key for contact form" "optional"
+
+echo ""
+echo "Database Migrations - OPTIONAL:"
+check_env_var "DATABASE_URL" "Direct PostgreSQL connection" "optional"
+
+echo ""
+echo "Analytics - OPTIONAL:"
+check_env_var "NEXT_PUBLIC_GA_ID" "Google Analytics ID" "optional"
 
 echo ""
 echo "======================================"
