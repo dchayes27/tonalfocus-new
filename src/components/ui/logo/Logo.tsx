@@ -3,27 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-
-// Check if reduced motion is preferred
-const useReducedMotion = () => {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
-  
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    
-    const onChange = () => {
-      setPrefersReducedMotion(mediaQuery.matches);
-    };
-    
-    mediaQuery.addEventListener('change', onChange);
-    return () => {
-      mediaQuery.removeEventListener('change', onChange);
-    };
-  }, []);
-  
-  return prefersReducedMotion;
-};
+import useReducedMotion from '@/hooks/useReducedMotion';
 
 const LogoIcon = () => {
   const prefersReducedMotion = useReducedMotion();
